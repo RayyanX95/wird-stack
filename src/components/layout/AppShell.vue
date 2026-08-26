@@ -19,10 +19,12 @@ import AppSidebar from './AppSidebar.vue'
 
 .main {
   flex: 1;
-  padding: 28px 32px;
+  padding: 36px 40px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
 }
 </style>

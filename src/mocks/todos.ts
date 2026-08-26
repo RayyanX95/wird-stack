@@ -1,0 +1,48 @@
+import type { TodoItem } from '@/types'
+
+export const mockTodos: TodoItem[] = [
+  {
+    id: '1',
+    title: "Read Qur'an",
+    anchorPrayer: 'Fajr',
+    minimalVersion: '1 verse',
+    days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    status: 'passed',
+    streak: 12,
+    paused: false,
+    isCompleted: true,
+  },
+  {
+    id: '2',
+    title: 'Dhikr — 33× SubhanAllah',
+    anchorPrayer: 'Dhuhr',
+    minimalVersion: '33 count',
+    days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    status: 'next',
+    streak: 8,
+    paused: false,
+    isCompleted: false,
+  },
+  {
+    id: '3',
+    title: 'Fast Mondays',
+    anchorPrayer: 'Fajr',
+    minimalVersion: 'niyyah the night before',
+    days: ['Mon'],
+    status: 'next',
+    streak: 3,
+    paused: false,
+    isCompleted: false,
+  },
+  {
+    id: '4',
+    title: 'Sadaqah Friday',
+    anchorPrayer: 'Maghrib',
+    minimalVersion: '$1',
+    days: ['Fri'],
+    status: 'next',
+    streak: 0,
+    paused: true,
+    isCompleted: false,
+  },
+]
