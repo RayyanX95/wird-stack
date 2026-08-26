@@ -1,0 +1,38 @@
+/**
+ * Sabr design tokens — light theme.
+ * Source: wireframe spec (theme colors + type system).
+ */
+:root {
+  /* color */
+  --bg: #f3f4ef;
+  --surface: #ffffff;
+  --surface-alt: #e9ede6;
+  --border: #d7dcd0;
+  --border-strong: #b9c1b1;
+
+  --text: #1e2a24;
+  --text-muted: #5c6b61;
+  --text-faint: #8b968c;
+
+  --accent: #1f6f5c;
+  --accent-hover: #175a4a;
+  --accent-soft: #dcece6;
+
+  --gold: #b8863c;
+  --gold-soft: #f3e6cf;
+
+  --warn: #b5533c;
+  --warn-soft: #f5e0da;
+
+  --shadow: 0 1px 2px rgba(30, 42, 36, 0.06), 0 8px 24px -12px rgba(30, 42, 36, 0.12);
+
+  /* type */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* radius */
+  --radius-sm: 7px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
