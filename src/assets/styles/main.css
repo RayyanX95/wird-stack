@@ -8,8 +8,7 @@ body {
   margin: 0;
   background:
     radial-gradient(720px 420px at 100% -8%, rgba(var(--accent-rgb), 0.06), transparent 65%),
-    radial-gradient(600px 380px at -6% 12%, rgba(var(--gold-rgb), 0.05), transparent 60%),
-    var(--bg);
+    radial-gradient(600px 380px at -6% 12%, rgba(var(--gold-rgb), 0.05), transparent 60%), var(--bg);
   background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-body);
@@ -131,6 +130,7 @@ h3 {
   border: 1px solid transparent;
   cursor: pointer;
   font-family: var(--font-body);
+  text-decoration: none;
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
@@ -310,7 +310,9 @@ h3 {
 .prayer-block.next {
   background: linear-gradient(165deg, var(--accent-soft), var(--surface));
   border-color: rgba(var(--accent-rgb), 0.35);
-  box-shadow: var(--shadow-accent), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  box-shadow:
+    var(--shadow-accent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 .prayer-block-head {
   display: flex;
@@ -379,6 +381,17 @@ h3 {
   color: var(--text-faint);
   margin-top: 5px;
 }
+.field-error {
+  font-size: 11.5px;
+  color: var(--warn);
+  margin-top: 5px;
+}
+.field-input.invalid {
+  border-color: var(--warn);
+}
+.field-input.invalid:focus {
+  box-shadow: 0 0 0 3px var(--warn-soft);
+}
 .prayer-pills {
   display: flex;
   gap: 6px;
@@ -405,6 +418,36 @@ h3 {
   color: var(--text);
 }
 .prayer-pill.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+}
+.day-pills {
+  display: flex;
+  gap: 6px;
+}
+.day-pill {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1.5px solid var(--border-strong);
+  color: var(--text-muted);
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+.day-pill:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.day-pill.selected {
   border-color: var(--accent);
   background: var(--accent-soft);
   color: var(--accent-hover);

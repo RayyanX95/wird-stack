@@ -1,5 +1,6 @@
 import { HomeView } from '@/views'
 import HabitsView from '@/views/HabitsView.vue'
+import NewHabitView from '@/views/NewHabitView.vue'
 import StatsView from '@/views/StatsView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -13,6 +14,11 @@ const routes = [
     path: '/habits',
     name: 'habits',
     component: HabitsView,
+  },
+  {
+    path: '/habits/new',
+    name: 'new-habit',
+    component: NewHabitView,
   },
   {
     path: '/stats',
