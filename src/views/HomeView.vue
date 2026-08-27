@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { TodoCard } from '@/components'
-import { mockHabits } from '@/mocks/habits'
+import { useHabitsStore } from '@/stores/habits'
 import type { Prayer } from '@/types'
+
+const { habits, isCompletedToday, toggleComplete } = useHabitsStore()
 
 const PRAYER_TIMES: Record<Prayer, string> = {
   Fajr: '05:14',
@@ -27,10 +29,12 @@ const PRAYER_TIMES: Record<Prayer, string> = {
 
   <main class="todo-list">
     <TodoCard
-      v-for="todo in mockHabits"
+      v-for="todo in habits.filter((h) => !h.paused)"
       :key="todo.id"
       :time="PRAYER_TIMES[todo.anchorPrayer]"
       :todo="todo"
+      :completed="isCompletedToday(todo.id)"
+      @toggle="toggleComplete"
     />
   </main>
 </template>

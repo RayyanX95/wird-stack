@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { mockHabits } from '@/mocks/habits';
 import { useRouter } from 'vue-router';
+import { useHabitsStore } from '@/stores/habits';
 
 const route = useRouter();
+const { habits, isCompletedToday, currentStreak } = useHabitsStore();
 </script>
 
 <template>
@@ -17,14 +18,14 @@ const route = useRouter();
 
     <div class="habit-list">
       <div
-        v-for="habit in mockHabits"
+        v-for="habit in habits"
         :key="habit.id"
         class="habit-row"
         :class="{ paused: habit.paused }"
         @click="route.push(`/habits/${habit.id}`)"
       >
-        <div class="habit-check" :class="{ on: habit.isCompleted }">
-          <span v-if="habit.isCompleted">✓</span>
+        <div class="habit-check" :class="{ on: isCompletedToday(habit.id) }">
+          <span v-if="isCompletedToday(habit.id)">✓</span>
         </div>
         <div class="habit-body">
           <div class="habit-title">{{ habit.title }}</div>
@@ -33,8 +34,8 @@ const route = useRouter();
             <template v-if="habit.paused"> · Paused</template>
           </div>
         </div>
-        <span v-if="!habit.paused && habit.streak > 0" class="pill streak"
-          >{{ habit.streak }}-day</span
+        <span v-if="!habit.paused && currentStreak(habit.id) > 0" class="pill streak"
+          >{{ currentStreak(habit.id) }}-day</span
         >
         <span v-else-if="!habit.paused" class="pill risk">At risk</span>
       </div>

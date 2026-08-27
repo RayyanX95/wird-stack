@@ -4,17 +4,30 @@ import { useRoute } from 'vue-router';
 import { useHabitsStore } from '@/stores/habits';
 
 const route = useRoute();
-const { getHabitById } = useHabitsStore();
+const { getHabitById, currentStreak, longestStreak, dayState } = useHabitsStore();
 
-const habit = computed(() => getHabitById(route.params.id as string));
+const habitId = computed(() => route.params.id as string);
+const habit = computed(() => getHabitById(habitId.value));
 
-// No completion history is modeled yet — these are static examples matching
-// the wireframe, not derived from real data.
-const historyDow = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-const historyWeeks = [
-  [true, true, true, false, true, true, true],
-  [true, true, false, true, true, true, true],
-];
+// Last 14 calendar days, oldest first, each resolved to its real state
+// (done / missed / not-scheduled) via the store — not static example data.
+const historyDays = computed(() => {
+  if (!habit.value) return [];
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const iso = d.toISOString().slice(0, 10);
+    days.push({
+      date: iso,
+      label: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
+      state: dayState(habitId.value, iso),
+    });
+  }
+  return days;
+});
+
+const historyWeeks = computed(() => [historyDays.value.slice(0, 7), historyDays.value.slice(7, 14)]);
 </script>
 
 <template>
@@ -29,12 +42,11 @@ const historyWeeks = [
 
       <div class="stat-cards">
         <div class="stat-card streak">
-          <div class="stat-value">{{ habit.streak }}</div>
+          <div class="stat-value">{{ currentStreak(habit.id) }}</div>
           <div class="stat-label">Current streak</div>
         </div>
         <div class="stat-card">
-          <!-- longest streak isn't tracked in the data model yet — mirrors current for now -->
-          <div class="stat-value">{{ habit.streak }}</div>
+          <div class="stat-value">{{ longestStreak(habit.id) }}</div>
           <div class="stat-label">Longest streak</div>
         </div>
       </div>
@@ -42,11 +54,19 @@ const historyWeeks = [
       <div>
         <div class="text-label margin-bottom">Last 14 days</div>
         <div class="history-grid">
-          <div class="history-dow">
-            <span v-for="(d, i) in historyDow" :key="i">{{ d }}</span>
-          </div>
-          <div v-for="(week, wi) in historyWeeks" :key="wi" class="history-week">
-            <div v-for="(done, di) in week" :key="di" class="history-cell" :class="{ on: done }" />
+          <div v-for="(week, wi) in historyWeeks" :key="wi">
+            <div class="history-dow">
+              <span v-for="d in week" :key="d.date">{{ d.label }}</span>
+            </div>
+            <div class="history-week">
+              <div
+                v-for="d in week"
+                :key="d.date"
+                class="history-cell"
+                :class="{ on: d.state === 'done', missed: d.state === 'missed' }"
+                :title="d.date"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -77,6 +97,10 @@ const historyWeeks = [
 
 .margin-bottom {
   margin-bottom: 6px;
+}
+
+.history-grid > div + div {
+  margin-top: 8px;
 }
 
 .btn-row {

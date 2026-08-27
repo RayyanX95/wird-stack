@@ -70,6 +70,7 @@ Habit {
   title: string              // "Read Qur'an"
   anchorPrayer: 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha'
   minimalVersion: string     // "1 verse" — the Two-Minute Rule version
+  days: WeekDay[]             // which weekdays this habit is scheduled on — defaults to all 7
   createdAt: string
   isPaused: boolean
 }
@@ -83,6 +84,23 @@ Completion {
 ```
 
 Deliberately backend-agnostic: the composable API layer (`useHabitsApi`) wraps localStorage behind an async interface (loading/error states included) so swapping in a real backend later is a drop-in change, not a rewrite.
+
+---
+
+## Streak & history logic
+
+The `Completion` log above is the **only source of truth** for progress — current streak, longest streak, "done today," and the calendar view are all *derived* from it on demand, never stored as their own fields. A habit does not carry a `streak` number or an `isCompleted` flag; those go stale the moment a day passes (nothing would reset `isCompleted` at midnight, nothing would recompute `streak` if a day gets unchecked). Storing them invites drift; deriving them keeps them correct by construction.
+
+**Derived functions, all scoped to one habit:**
+
+- `isCompletedOn(date)` — does a `Completion` exist for this habit on that date?
+- `currentStreak()` — walk backward from today, counting consecutive **scheduled** days (per `Habit.days`) that have a completion. A day the habit isn't scheduled on is skipped entirely, not counted as a miss — "Fast Mondays" doesn't lose its streak because Tuesday–Sunday went unmarked, since those were never asked of it.
+- `longestStreak()` — the same walk, scanned across the full log instead of stopping at the first gap.
+- Calendar cell state — for any date, one of three states, not two: **done** (completion exists), **missed** (a scheduled day with no completion), or **not scheduled** (e.g. Tuesday for a Mondays-only habit). Collapsing "missed" and "not scheduled" into one visual would misrepresent adherence.
+
+**"Never miss twice" (habit science → feature mapping, above)** is itself a derived read of the same log: two consecutive **scheduled** days without a completion is the "at risk" state; one missed scheduled day is a soft, non-punitive gap. No separate risk field to keep in sync — it falls out of the streak walk.
+
+**Open decision, not yet locked:** if a habit's `days` schedule is edited after some history already exists (e.g. "Fast Mondays" becomes "Fast Mon + Thu"), does past streak math get re-evaluated against the *new* schedule, or does it stay pinned to whatever schedule was active on each historical date? Current lean is the simpler option — always evaluate against the habit's *current* `days` — since re-deriving from a single log is cheap and per-date schedule snapshots add real complexity for a case that's unlikely to matter much in a personal habit tracker. Worth revisiting only if it produces a confusing streak jump in practice.
 
 ---
 

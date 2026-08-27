@@ -1,1 +1,2 @@
-export { mockHabits as mockTodos } from './habits'
+export { mockHabits } from './habits'
+export { mockCompletions } from './completions'
