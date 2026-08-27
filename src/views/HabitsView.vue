@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router';
 import { useHabitsStore } from '@/stores/habits';
 
 const route = useRouter();
-const { habits, isCompletedToday, currentStreak, isNewHabit } = useHabitsStore();
+const { habits, isCompletedToday, currentStreak, isNewHabit, toggleComplete } = useHabitsStore();
 </script>
 
 <template>
@@ -24,9 +24,14 @@ const { habits, isCompletedToday, currentStreak, isNewHabit } = useHabitsStore()
         :class="{ paused: habit.paused }"
         @click="route.push(`/habits/${habit.id}`)"
       >
-        <div class="habit-check" :class="{ on: isCompletedToday(habit.id) }">
+        <button
+          class="habit-check"
+          :class="{ on: isCompletedToday(habit.id) }"
+          :aria-label="isCompletedToday(habit.id) ? 'Mark incomplete' : 'Mark complete'"
+          @click.stop="toggleComplete(habit.id)"
+        >
           <span v-if="isCompletedToday(habit.id)">✓</span>
-        </div>
+        </button>
         <div class="habit-body">
           <div class="habit-title">{{ habit.title }}</div>
           <div class="habit-meta">
