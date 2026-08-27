@@ -104,10 +104,37 @@ export const useHabitsStore = defineStore('habits', () => {
     return longest;
   };
 
+  // True until the habit has had at least one *scheduled* day pass without a
+  // completion — i.e. it hasn't had the chance to be "at risk" yet, it's
+  // just new. A freshly created habit, or one whose only scheduled day is
+  // still today/in the future, counts as new even with a 0 streak.
+  const isNewHabit = (habitId: string): boolean => {
+    const habit = getHabitById(habitId);
+    if (!habit) return false;
+
+    const cursor = new Date(habit.createdAt);
+    cursor.setHours(0, 0, 0, 0);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+
+    while (cursor <= yesterday) {
+      if (habit.days.includes(weekDayOf(cursor)) && !isCompletedOn(habitId, toIso(cursor))) {
+        return false;
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return true;
+  };
+
   // What one calendar cell should render as for a given habit + date.
   const dayState = (habitId: string, date: string): HabitDayState => {
     const habit = getHabitById(habitId);
     if (!habit) return 'not-scheduled';
+
+    // Dates before the habit existed can't have been missed — there was
+    // nothing to do them for.
+    if (date < toIso(new Date(habit.createdAt))) return 'not-scheduled';
 
     const scheduled = habit.days.includes(weekDayOf(new Date(date)));
     if (!scheduled) return 'not-scheduled';
@@ -125,6 +152,7 @@ export const useHabitsStore = defineStore('habits', () => {
     toggleComplete,
     currentStreak,
     longestStreak,
+    isNewHabit,
     dayState,
   };
 });

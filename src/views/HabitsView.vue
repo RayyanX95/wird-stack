@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router';
 import { useHabitsStore } from '@/stores/habits';
 
 const route = useRouter();
-const { habits, isCompletedToday, currentStreak } = useHabitsStore();
+const { habits, isCompletedToday, currentStreak, isNewHabit } = useHabitsStore();
 </script>
 
 <template>
@@ -37,6 +37,7 @@ const { habits, isCompletedToday, currentStreak } = useHabitsStore();
         <span v-if="!habit.paused && currentStreak(habit.id) > 0" class="pill streak"
           >{{ currentStreak(habit.id) }}-day</span
         >
+        <span v-else-if="!habit.paused && isNewHabit(habit.id)" class="pill new">New</span>
         <span v-else-if="!habit.paused" class="pill risk">At risk</span>
       </div>
     </div>

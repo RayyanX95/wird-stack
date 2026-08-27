@@ -195,6 +195,11 @@ h3 {
   background: var(--warn-soft);
   color: var(--warn);
 }
+.pill.new {
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
 .pill::before {
   content: '';
   width: 6px;
@@ -307,6 +312,7 @@ h3 {
   padding: 14px;
   background: var(--surface-alt);
   border: 1px solid transparent;
+  cursor: pointer;
   transition:
     background-color var(--transition),
     border-color var(--transition),
@@ -442,6 +448,7 @@ h3 {
   color: var(--text-muted);
   background: transparent;
   cursor: pointer;
+  max-width: 64px;
   font-family: var(--font-body);
   transition:
     border-color var(--transition-fast),

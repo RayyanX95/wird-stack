@@ -2,6 +2,17 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHabitsStore } from '@/stores/habits';
+import type { WeekDay } from '@/types';
+
+const DAYS: { label: string; value: WeekDay }[] = [
+  { label: 'M', value: 'Mon' },
+  { label: 'T', value: 'Tue' },
+  { label: 'W', value: 'Wed' },
+  { label: 'T', value: 'Thu' },
+  { label: 'F', value: 'Fri' },
+  { label: 'S', value: 'Sat' },
+  { label: 'S', value: 'Sun' },
+];
 
 const route = useRoute();
 const { getHabitById, currentStreak, longestStreak, dayState } = useHabitsStore();
@@ -27,7 +38,12 @@ const historyDays = computed(() => {
   return days;
 });
 
-const historyWeeks = computed(() => [historyDays.value.slice(0, 7), historyDays.value.slice(7, 14)]);
+const historyWeeks = computed(() => [
+  historyDays.value.slice(0, 7),
+  historyDays.value.slice(7, 14),
+]);
+
+const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.includes(day.value)));
 </script>
 
 <template>
@@ -37,17 +53,30 @@ const historyWeeks = computed(() => [historyDays.value.slice(0, 7), historyDays.
     <template v-if="habit">
       <header class="page-header">
         <h1 class="text-title margin-bottom">{{ habit.title }}</h1>
-        <span class="text-subtitle">After {{ habit.anchorPrayer }} · {{ habit.minimalVersion }}</span>
+        <span class="text-subtitle"
+          >After {{ habit.anchorPrayer }} · {{ habit.minimalVersion }}</span
+        >
       </header>
 
       <div class="stat-cards">
-        <div class="stat-card streak">
+        <div class="stat-card" :class="{ streak: currentStreak(habit.id) > 0 }">
           <div class="stat-value">{{ currentStreak(habit.id) }}</div>
           <div class="stat-label">Current streak</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">{{ longestStreak(habit.id) }}</div>
+          <div class="stat-value">
+            {{ Math.max(longestStreak(habit.id), currentStreak(habit.id)) }}
+          </div>
           <div class="stat-label">Longest streak</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Set in Days</div>
+        <div class="day-pills">
+          <span v-for="day in scheduledDays" :key="day.value" class="day-pill selected">
+            {{ day.value }}
+          </span>
         </div>
       </div>
 
