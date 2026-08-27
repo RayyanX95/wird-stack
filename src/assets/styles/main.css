@@ -458,6 +458,132 @@ h3 {
   color: var(--accent-hover);
 }
 
+/* back link — small muted back-navigation above a detail page's header */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  width: fit-content;
+  transition: color var(--transition-fast);
+}
+.back-link::before {
+  content: '←';
+  display: inline-block;
+  transition: transform var(--transition-fast);
+}
+.back-link:hover {
+  color: var(--accent);
+}
+.back-link:hover::before {
+  transform: translateX(-3px);
+}
+
+/* stat cards — current/longest streak on habit detail */
+.stat-cards {
+  display: flex;
+  gap: 12px;
+}
+.stat-card {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  text-align: center;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    box-shadow var(--transition),
+    transform var(--transition),
+    border-color var(--transition);
+}
+.stat-card:hover {
+  box-shadow: var(--shadow);
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+.stat-card.streak {
+  background: linear-gradient(165deg, var(--gold-soft), var(--surface));
+  border-color: rgba(var(--gold-rgb), 0.3);
+}
+.stat-card.streak:hover {
+  box-shadow:
+    0 2px 6px rgba(var(--gold-rgb), 0.12),
+    0 14px 28px -14px rgba(var(--gold-rgb), 0.35);
+}
+.stat-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.stat-card.streak .stat-value {
+  color: var(--gold);
+}
+.stat-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-top: 6px;
+}
+
+/* history grid — day-by-day completion dots on habit detail */
+.history-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.history-dow {
+  display: flex;
+  gap: 8px;
+}
+.history-dow span {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+.history-week {
+  display: flex;
+  gap: 8px;
+}
+.history-cell {
+  flex: 1;
+  aspect-ratio: 1;
+  border-radius: 7px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+.history-cell:hover {
+  transform: scale(1.08);
+}
+.history-cell.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 1px 3px rgba(var(--accent-rgb), 0.25);
+}
+.history-cell.on::after {
+  content: '✓';
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;

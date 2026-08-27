@@ -1,6 +1,6 @@
 # Sabr — Islamic Habit Tracker
 
-> *"The most beloved deeds to Allah are those done consistently, even if small."* — Prophet Muhammad ﷺ (Sahih al-Bukhari)
+> _"The most beloved deeds to Allah are those done consistently, even if small."_ — Prophet Muhammad ﷺ (Sahih al-Bukhari)
 
 **Sabr** (صبر — patience, perseverance) is a habit-tracking app that helps Muslims build consistent Islamic practices using proven habit-formation science, not just a checklist. It's built as a portfolio project for Phase 2 of a Vue 3 learning roadmap — the goal is to demonstrate real state management, routing, and composable architecture, not just CRUD.
 
@@ -19,29 +19,35 @@ Instead of asking "did you do X today?", Sabr asks "what will you stack after Fa
 
 ---
 
+## Wireframe
+
+[Click here to view](https://claude.ai/code/artifact/d9d2e97e-b181-4ceb-8935-989622697b4f)
+
+---
+
 ## Habit science → feature mapping
 
-| Principle | Source | How Sabr implements it |
-|---|---|---|
-| **Cue** — the trigger that starts the loop | Cue-Craving-Response-Reward loop | Prayer times act as fixed cues; user picks which prayer a habit is "stacked" after |
-| **Habit stacking** — "After [current habit], I will [new habit]" | Habit stacking formula | Every habit is created as "After [Prayer], I will [action]" — not a floating to-do |
-| **Make it obvious** | 4 Laws of Behavior Change | Today view surfaces only what's relevant *right now*, ordered by the next prayer |
-| **Make it easy** — Two-Minute Rule | 4 Laws of Behavior Change | New habits default to a minimal version (e.g. "read 1 verse," not "read 1 juz") — user can scale up later |
-| **Make it satisfying** — immediate reward + tracking | 4 Laws of Behavior Change | Instant visual confirmation on completion + streak counter, visible the moment a habit is marked done |
-| **Never miss twice** | Atomic Habits core rule | Streak logic distinguishes a single missed day (soft warning) from two consecutive misses (explicit "you're at risk" state) |
-| **1% better, compounding** | Atomic Habits core thesis | Stats view shows trend over time, not just today's completion — the point is the compounding, not any single day |
+| Principle                                                        | Source                           | How Sabr implements it                                                                                                      |
+| ---------------------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Cue** — the trigger that starts the loop                       | Cue-Craving-Response-Reward loop | Prayer times act as fixed cues; user picks which prayer a habit is "stacked" after                                          |
+| **Habit stacking** — "After [current habit], I will [new habit]" | Habit stacking formula           | Every habit is created as "After [Prayer], I will [action]" — not a floating to-do                                          |
+| **Make it obvious**                                              | 4 Laws of Behavior Change        | Today view surfaces only what's relevant _right now_, ordered by the next prayer                                            |
+| **Make it easy** — Two-Minute Rule                               | 4 Laws of Behavior Change        | New habits default to a minimal version (e.g. "read 1 verse," not "read 1 juz") — user can scale up later                   |
+| **Make it satisfying** — immediate reward + tracking             | 4 Laws of Behavior Change        | Instant visual confirmation on completion + streak counter, visible the moment a habit is marked done                       |
+| **Never miss twice**                                             | Atomic Habits core rule          | Streak logic distinguishes a single missed day (soft warning) from two consecutive misses (explicit "you're at risk" state) |
+| **1% better, compounding**                                       | Atomic Habits core thesis        | Stats view shows trend over time, not just today's completion — the point is the compounding, not any single day            |
 
 ---
 
 ## Core routes
 
-| Route | Purpose |
-|---|---|
-| `/` | **Today** — habits due around today's prayer times, ordered chronologically. The default landing screen. |
-| `/habits` | **Manage** — full list of all habits (active + paused), create/edit/delete |
-| `/habits/new` | Create a new habit — pick the anchor prayer, the action, and the minimal "two-minute" version |
-| `/habits/:id` | Habit detail — history, current streak, longest streak, edit/pause/delete |
-| `/stats` | Trends over time — weekly/monthly completion rate, per-prayer breakdown (e.g. "you're strongest after Fajr, weakest after Isha") |
+| Route         | Purpose                                                                                                                          |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `/`           | **Today** — habits due around today's prayer times, ordered chronologically. The default landing screen.                         |
+| `/habits`     | **Manage** — full list of all habits (active + paused), create/edit/delete                                                       |
+| `/habits/new` | Create a new habit — pick the anchor prayer, the action, and the minimal "two-minute" version                                    |
+| `/habits/:id` | Habit detail — history, current streak, longest streak, edit/pause/delete                                                        |
+| `/stats`      | Trends over time — weekly/monthly completion rate, per-prayer breakdown (e.g. "you're strongest after Fajr, weakest after Isha") |
 
 `/stats` is gated behind a route guard (`meta.requiresData`) that redirects to `/habits/new` if the user has fewer than 3 logged completions — there's nothing meaningful to show yet, and it doubles as a real `beforeEnter`/`meta` guard exercise for the Phase 2 checklist.
 
@@ -52,7 +58,7 @@ Instead of asking "did you do X today?", Sabr asks "what will you stack after Fa
 1. **Onboarding** — user is introduced to the "stack it after a prayer" idea, creates their first 1–3 habits
 2. **Daily use** — opens `/`, sees today's stack ordered by upcoming/passed prayer times, taps to mark complete
 3. **Miss a day** — app doesn't punish; on return, it surfaces a gentle "pick back up" prompt tied to the next prayer, not a guilt-based streak reset screen
-4. **Weekly reflection** — `/stats` shows the pattern (which prayer-anchors are working, which aren't) so the user can adjust the *anchor*, not just try harder
+4. **Weekly reflection** — `/stats` shows the pattern (which prayer-anchors are working, which aren't) so the user can adjust the _anchor_, not just try harder
 
 ---
 
