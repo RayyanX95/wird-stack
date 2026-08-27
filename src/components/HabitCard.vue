@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { TodoItem, WeekDay } from '@/types'
+import type { HabitItem, WeekDay } from '@/types'
 
 const props = defineProps<{
   time: string
-  todo: TodoItem
+  todo: HabitItem
 }>()
 
 const emit = defineEmits<{ toggle: [id: string] }>()

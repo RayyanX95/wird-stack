@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, toRaw, watchEffect } from 'vue'
+import { useRouter } from 'vue-router'
 import type { Prayer, WeekDay } from '@/types'
 import { habitSchema, type HabitFormValues } from './schema'
+import { useHabitsStore } from '@/stores/habits'
+import { ModalComponent } from '@/components'
+
+const router = useRouter()
 
 const PRAYERS: Prayer[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
 const DAYS: { label: string; value: WeekDay }[] = [
@@ -19,9 +24,13 @@ const anchorPrayer = ref<Prayer>('Fajr')
 const minimalVersion = ref('')
 const selectedDays = ref<WeekDay[]>(DAYS.map((d) => d.value))
 
+const { onAddHabit } = useHabitsStore()
+
 // One error message per field, keyed by the schema's own field names — stays
 // in sync with habitSchema automatically since it's typed off HabitFormValues.
 const errors = reactive<Partial<Record<keyof HabitFormValues, string>>>({})
+
+const showSuccessModal = ref(false)
 
 function toggleDay(day: WeekDay) {
   selectedDays.value = selectedDays.value.includes(day)
@@ -48,10 +57,12 @@ function handleSubmit() {
     return
   }
 
-  // result.data is now a fully-typed, validated HabitFormValues —
-  // this is the point to call the store/API with it.
-  console.log('valid habit:', result.data)
+  // result.data is now a fully-typed, validated HabitFormValues
+  onAddHabit(result.data)
+  showSuccessModal.value = true
 }
+
+watchEffect(() => console.log('errors', toRaw(errors)))
 </script>
 
 <template>
@@ -60,6 +71,15 @@ function handleSubmit() {
       <h1 class="text-title margin-bottom">New habit</h1>
       <span class="text-subtitle">Stack it after a prayer</span>
     </header>
+
+    <ModalComponent
+      v-model:open="showSuccessModal"
+      title="Habit stacked"
+      message="It's on your Today list — you'll see it after your next prayer."
+      success-btn-label="Go to habits"
+      close-btn-label="Close"
+      @success="router.push('/habits')"
+    />
 
     <form @submit.prevent="handleSubmit">
       <div class="field">

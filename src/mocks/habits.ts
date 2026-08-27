@@ -1,6 +1,6 @@
-import type { TodoItem } from '@/types'
+import type { HabitItem } from '@/types'
 
-export const mockTodos: TodoItem[] = [
+export const mockHabits: HabitItem[] = [
   {
     id: '1',
     title: "Read Qur'an",

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { mockTodos } from '@/mocks/todos'
+import { mockHabits } from '@/mocks/habits'
 </script>
 
 <template>
@@ -13,7 +13,12 @@ import { mockTodos } from '@/mocks/todos'
     </header>
 
     <div class="habit-list">
-      <div v-for="todo in mockTodos" :key="todo.id" class="habit-row" :class="{ paused: todo.paused }">
+      <div
+        v-for="todo in mockHabits"
+        :key="todo.id"
+        class="habit-row"
+        :class="{ paused: todo.paused }"
+      >
         <div class="habit-check" :class="{ on: todo.isCompleted }">
           <span v-if="todo.isCompleted">✓</span>
         </div>
@@ -24,7 +29,9 @@ import { mockTodos } from '@/mocks/todos'
             <template v-if="todo.paused"> · Paused</template>
           </div>
         </div>
-        <span v-if="!todo.paused && todo.streak > 0" class="pill streak">{{ todo.streak }}-day</span>
+        <span v-if="!todo.paused && todo.streak > 0" class="pill streak"
+          >{{ todo.streak }}-day</span
+        >
         <span v-else-if="!todo.paused" class="pill risk">At risk</span>
       </div>
     </div>
