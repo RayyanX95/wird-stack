@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { reactive, ref, toRaw, watchEffect } from 'vue'
-import { useRouter } from 'vue-router'
-import type { Prayer, WeekDay } from '@/types'
-import { habitSchema, type HabitFormValues } from './schema'
-import { useHabitsStore } from '@/stores/habits'
-import { ModalComponent } from '@/components'
+import { reactive, ref, toRaw, watchEffect } from 'vue';
+import { useRouter } from 'vue-router';
+import type { Prayer, WeekDay } from '@/types';
+import { habitSchema, type HabitFormValues } from './schema';
+import { useHabitsStore } from '@/stores/habits';
+import { LoadingOverlay, ModalComponent } from '@/components';
 
-const router = useRouter()
+const router = useRouter();
 
-const PRAYERS: Prayer[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
+const PRAYERS: Prayer[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 const DAYS: { label: string; value: WeekDay }[] = [
   { label: 'M', value: 'Mon' },
   { label: 'T', value: 'Tue' },
@@ -17,52 +17,66 @@ const DAYS: { label: string; value: WeekDay }[] = [
   { label: 'F', value: 'Fri' },
   { label: 'S', value: 'Sat' },
   { label: 'S', value: 'Sun' },
-]
+];
 
-const title = ref('')
-const anchorPrayer = ref<Prayer>('Fajr')
-const minimalVersion = ref('')
-const selectedDays = ref<WeekDay[]>(DAYS.map((d) => d.value))
+const title = ref('');
+const anchorPrayer = ref<Prayer>('Fajr');
+const minimalVersion = ref('');
+const selectedDays = ref<WeekDay[]>(DAYS.map((d) => d.value));
 
-const { onAddHabit } = useHabitsStore()
+const { onAddHabit } = useHabitsStore();
 
 // One error message per field, keyed by the schema's own field names — stays
 // in sync with habitSchema automatically since it's typed off HabitFormValues.
-const errors = reactive<Partial<Record<keyof HabitFormValues, string>>>({})
+const errors = reactive<Partial<Record<keyof HabitFormValues, string>>>({});
 
-const showSuccessModal = ref(false)
+const showSuccessModal = ref(false);
+const isSubmitting = ref(false);
 
 function toggleDay(day: WeekDay) {
   selectedDays.value = selectedDays.value.includes(day)
     ? selectedDays.value.filter((d) => d !== day)
-    : [...selectedDays.value, day]
+    : [...selectedDays.value, day];
 }
 
-function handleSubmit() {
+const resetForm = () => {
+  title.value = '';
+  minimalVersion.value = '';
+  selectedDays.value = DAYS.map((d) => d.value);
+  anchorPrayer.value = 'Fajr';
+};
+
+async function handleSubmit() {
   const result = habitSchema.safeParse({
     title: title.value,
     anchorPrayer: anchorPrayer.value,
     minimalVersion: minimalVersion.value,
     days: selectedDays.value,
-  })
+  });
 
   // clear previous errors before reporting the new pass
-  for (const key of Object.keys(errors) as (keyof HabitFormValues)[]) delete errors[key]
+  for (const key of Object.keys(errors) as (keyof HabitFormValues)[]) delete errors[key];
 
   if (!result.success) {
     for (const issue of result.error.issues) {
-      const field = issue.path[0] as keyof HabitFormValues
-      if (!errors[field]) errors[field] = issue.message
+      const field = issue.path[0] as keyof HabitFormValues;
+      if (!errors[field]) errors[field] = issue.message;
     }
-    return
+    return;
   }
 
-  // result.data is now a fully-typed, validated HabitFormValues
-  onAddHabit(result.data)
-  showSuccessModal.value = true
+  // fake delay — there's no real API call yet, this just gives the loading
+  // overlay something to show before the habit lands in the store.
+  isSubmitting.value = true;
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  isSubmitting.value = false;
+
+  onAddHabit(result.data);
+  showSuccessModal.value = true;
+  resetForm();
 }
 
-watchEffect(() => console.log('errors', toRaw(errors)))
+watchEffect(() => console.log('errors', toRaw(errors)));
 </script>
 
 <template>
@@ -80,6 +94,8 @@ watchEffect(() => console.log('errors', toRaw(errors)))
       close-btn-label="Close"
       @success="router.push('/habits')"
     />
+
+    <LoadingOverlay :show="isSubmitting" label="Stacking your habit…" />
 
     <form @submit.prevent="handleSubmit">
       <div class="field">
@@ -146,7 +162,7 @@ watchEffect(() => console.log('errors', toRaw(errors)))
 
       <div class="btn-row">
         <RouterLink to="/habits" class="btn ghost">Cancel</RouterLink>
-        <button type="submit" class="btn primary">Create habit</button>
+        <button type="submit" class="btn primary" :disabled="isSubmitting">Create habit</button>
       </div>
     </form>
   </div>

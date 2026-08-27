@@ -140,6 +140,11 @@ h3 {
 .btn:active {
   transform: translateY(1px);
 }
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 .btn.primary {
   background: linear-gradient(155deg, var(--accent), var(--accent-hover));
   color: #fff;
