@@ -40,10 +40,16 @@
   /* Warning tint — background behind at-risk badges or warning banners. */
   --warn-soft: #f5e0da;
 
+  /* Informational color — neutral notices, "info" modal/toast state. Semantic, not decorative. */
+  --info: #3b6fa0;
+  /* Info tint — background behind info badges/banners. */
+  --info-soft: #dde8f2;
+
   /* RGB channels of the colors above, for building tinted shadows/glows via rgba() — keep in sync with the hex values. */
   --accent-rgb: 31, 111, 92;
   --gold-rgb: 184, 134, 60;
   --warn-rgb: 181, 83, 60;
+  --info-rgb: 59, 111, 160;
   --text-rgb: 30, 42, 36;
 
   /* Elevation shadows — resting, hover/raised, and modal/popover depth. Tinted with --text-rgb so they read as soft, not gray. */

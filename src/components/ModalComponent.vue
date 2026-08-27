@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import {
   DialogClose,
@@ -10,16 +11,26 @@ import {
   DialogTitle,
 } from 'reka-ui'
 
-withDefaults(
+type ModalVariant = 'success' | 'info' | 'error'
+
+const VARIANT_ICONS: Record<ModalVariant, string> = {
+  success: 'lucide:check',
+  info: 'lucide:info',
+  error: 'lucide:alert-triangle',
+}
+
+const props = withDefaults(
   defineProps<{
     title?: string
     message?: string
     successBtnLabel?: string
     closeBtnLabel?: string
-    icon?: string
+    variant?: ModalVariant
   }>(),
-  { successBtnLabel: 'OK', closeBtnLabel: 'Close', icon: 'lucide:check' },
+  { successBtnLabel: 'OK', closeBtnLabel: 'Close', variant: 'success' },
 )
+
+const icon = computed(() => VARIANT_ICONS[props.variant])
 
 const emit = defineEmits<{ success: [] }>()
 
@@ -40,7 +51,7 @@ function handleSuccess() {
       <DialogOverlay class="dialog-overlay" />
       <DialogContent class="dialog-content">
         <div class="icon-row">
-          <div class="dialog-icon">
+          <div class="dialog-icon" :class="`dialog-icon--${props.variant}`">
             <Icon :icon="icon" />
           </div>
         </div>
@@ -106,10 +117,23 @@ function handleSuccess() {
   align-items: center;
   justify-content: center;
   margin-bottom: 14px;
-  background: linear-gradient(155deg, var(--accent), var(--accent-hover));
-  box-shadow: 0 0 0 6px var(--accent-soft);
   color: #fff;
   font-size: 20px;
+}
+
+.dialog-icon--success {
+  background: linear-gradient(155deg, var(--accent), var(--accent-hover));
+  box-shadow: 0 0 0 6px var(--accent-soft);
+}
+
+.dialog-icon--info {
+  background: linear-gradient(155deg, var(--info), var(--info));
+  box-shadow: 0 0 0 6px var(--info-soft);
+}
+
+.dialog-icon--error {
+  background: linear-gradient(155deg, var(--warn), var(--warn));
+  box-shadow: 0 0 0 6px var(--warn-soft);
 }
 
 .dialog-title {

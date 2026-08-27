@@ -93,6 +93,7 @@ watchEffect(() => console.log('errors', toRaw(errors)));
       success-btn-label="Go to habits"
       close-btn-label="Close"
       @success="router.push('/habits')"
+      variant="success"
     />
 
     <LoadingOverlay :show="isSubmitting" label="Stacking your habit…" />
