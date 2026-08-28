@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useHabitsStore } from '@/stores/habits';
 import type { WeekDay } from '@/types';
+import { ModalComponent } from '@/components';
 
 const DAYS: { label: string; value: WeekDay }[] = [
   { label: 'M', value: 'Mon' },
@@ -15,7 +16,11 @@ const DAYS: { label: string; value: WeekDay }[] = [
 ];
 
 const route = useRoute();
-const { getHabitById, currentStreak, longestStreak, dayState } = useHabitsStore();
+const router = useRouter();
+const { getHabitById, deleteHabit, currentStreak, longestStreak, dayState } = useHabitsStore();
+
+const showDeleteConfirm = ref(false);
+const showDeletedModal = ref(false);
 
 const habitId = computed(() => route.params.id as string);
 const habit = computed(() => getHabitById(habitId.value));
@@ -43,12 +48,47 @@ const historyWeeks = computed(() => [
   historyDays.value.slice(7, 14),
 ]);
 
+const onDelete = () => {
+  showDeleteConfirm.value = true;
+};
+
+const onConfirmDelete = () => {
+  if (!habit.value) return;
+  deleteHabit(habit.value.id);
+  showDeleteConfirm.value = false;
+  showDeletedModal.value = true;
+};
+
+// Navigate back to the list whenever the "deleted" confirmation closes,
+// however it closes (Close button, X, escape, overlay click).
+watch(showDeletedModal, (isOpen) => {
+  if (!isOpen) router.push('/habits');
+});
+
 const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.includes(day.value)));
 </script>
 
 <template>
   <div class="habit-details-page">
     <RouterLink to="/habits" class="back-link">Back to habits</RouterLink>
+
+    <ModalComponent
+      v-model:open="showDeleteConfirm"
+      title="Delete habit?"
+      :message="`This will permanently delete '${habit?.title}' and its completion history. This can't be undone.`"
+      close-btn-label="Cancel"
+      success-btn-label="Delete"
+      variant="error"
+      @success="onConfirmDelete"
+    />
+
+    <ModalComponent
+      v-model:open="showDeletedModal"
+      title="Deleted"
+      message="The habit has been deleted."
+      close-btn-label="Close"
+      variant="info"
+    />
 
     <template v-if="habit">
       <header class="page-header">
@@ -103,11 +143,11 @@ const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.incl
       <div class="btn-row">
         <button type="button" class="btn ghost">Pause</button>
         <button type="button" class="btn ghost">Edit</button>
-        <button type="button" class="btn danger">Delete</button>
+        <button type="button" class="btn danger" @click="onDelete">Delete</button>
       </div>
     </template>
 
-    <p v-else class="text-subtitle">Habit not found.</p>
+    <p v-else-if="!showDeletedModal" class="text-subtitle">Habit not found.</p>
   </div>
 </template>
 

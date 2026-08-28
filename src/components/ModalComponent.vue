@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Icon } from '@iconify/vue'
+import { computed } from 'vue';
+import { Icon } from '@iconify/vue';
 import {
   DialogClose,
   DialogContent,
@@ -9,39 +9,38 @@ import {
   DialogPortal,
   DialogRoot,
   DialogTitle,
-} from 'reka-ui'
-
-type ModalVariant = 'success' | 'info' | 'error'
+} from 'reka-ui';
+import type { ModalVariant } from '@/types';
 
 const VARIANT_ICONS: Record<ModalVariant, string> = {
   success: 'lucide:check',
   info: 'lucide:info',
   error: 'lucide:alert-triangle',
-}
+};
 
 const props = withDefaults(
   defineProps<{
-    title?: string
-    message?: string
-    successBtnLabel?: string
-    closeBtnLabel?: string
-    variant?: ModalVariant
+    title?: string;
+    message?: string;
+    successBtnLabel?: string;
+    closeBtnLabel?: string;
+    variant?: ModalVariant;
   }>(),
-  { successBtnLabel: 'OK', closeBtnLabel: 'Close', variant: 'success' },
-)
+  { closeBtnLabel: 'Close', variant: 'success' },
+);
 
-const icon = computed(() => VARIANT_ICONS[props.variant])
+const icon = computed(() => VARIANT_ICONS[props.variant]);
 
-const emit = defineEmits<{ success: [] }>()
+const emit = defineEmits<{ success: [] }>();
 
 // Controlled open state — the parent drives this with v-model:open (e.g. flips
 // it to true after a successful form submit) instead of relying on an
 // internal DialogTrigger, which this modal doesn't always have one of.
-const open = defineModel<boolean>('open', { default: false })
+const open = defineModel<boolean>('open', { default: false });
 
 function handleSuccess() {
-  emit('success')
-  open.value = false
+  emit('success');
+  open.value = false;
 }
 </script>
 
@@ -63,7 +62,13 @@ function handleSuccess() {
 
         <div class="dialog-actions">
           <DialogClose class="btn ghost">{{ closeBtnLabel }}</DialogClose>
-          <button type="button" class="btn primary" @click="handleSuccess">
+          <button
+            v-if="successBtnLabel"
+            type="button"
+            class="btn"
+            :class="variant === 'error' ? 'danger' : 'primary'"
+            @click="handleSuccess"
+          >
             {{ successBtnLabel }}
           </button>
         </div>

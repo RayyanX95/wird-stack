@@ -27,6 +27,15 @@ export const useHabitsStore = defineStore('habits', () => {
     habits.push(newHabit);
   };
 
+  const deleteHabit = (habitId: string) => {
+    const index = habits.findIndex((h) => h.id === habitId);
+    if (index >= 0) habits.splice(index, 1);
+
+    for (let i = completions.length - 1; i >= 0; i--) {
+      if (completions[i]?.habitId === habitId) completions.splice(i, 1);
+    }
+  };
+
   const getHabitById = (id: string) => {
     if (!id) return null;
 
@@ -146,6 +155,7 @@ export const useHabitsStore = defineStore('habits', () => {
     habits,
     completions,
     onAddHabit,
+    deleteHabit,
     getHabitById,
     isCompletedOn,
     isCompletedToday,
