@@ -93,6 +93,15 @@ const weekRangeLabel = computed(() => {
     : `${format(weekDays.value[0]!.date)} – ${format(weekDays.value[6]!.date)}`;
 });
 
+const createdOnLabel = computed(() => {
+  if (!habit.value) return '';
+  return new Date(habit.value.createdAt).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+});
+
 // fake delay — there's no real API call yet, this just gives the loading
 // overlay something to show before the toggle lands in the store.
 const onTogglePause = async () => {
@@ -156,6 +165,7 @@ const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.incl
         <span class="text-subtitle"
           >After {{ habit.anchorPrayer }} · {{ habit.minimalVersion }}</span
         >
+        <span class="text-caption created-on">Started {{ createdOnLabel }}</span>
       </header>
 
       <div class="stat-cards">
@@ -269,6 +279,11 @@ const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.incl
 
 .margin-bottom {
   margin-bottom: 6px;
+}
+
+.created-on {
+  display: block;
+  margin-top: 4px;
 }
 
 .history-header {
