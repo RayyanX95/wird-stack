@@ -78,6 +78,11 @@ export const useHabitsStore = defineStore(
     };
 
     const toggleComplete = (habitId: string, date: string = toIso(new Date())) => {
+      // Paused habits aren't part of the active routine — block completion
+      // toggling here too, not just in the UI, since this is reachable
+      // directly as a store action.
+      if (getHabitById(habitId)?.paused) return;
+
       const index = completions.value.findIndex((c) => c.habitId === habitId && c.date === date);
       if (index >= 0) {
         completions.value.splice(index, 1);

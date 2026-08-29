@@ -27,23 +27,29 @@ const { habits, isCompletedToday, currentStreak, isNewHabit, toggleComplete } = 
         <button
           class="habit-check"
           :class="{ on: isCompletedToday(habit.id) }"
-          :aria-label="isCompletedToday(habit.id) ? 'Mark incomplete' : 'Mark complete'"
+          :disabled="habit.paused"
+          :aria-label="
+            habit.paused
+              ? 'Paused — resume to track completion'
+              : isCompletedToday(habit.id)
+                ? 'Mark incomplete'
+                : 'Mark complete'
+          "
+          :title="habit.paused ? 'Resume this habit to check it off' : undefined"
           @click.stop="toggleComplete(habit.id)"
         >
           <span v-if="isCompletedToday(habit.id)">✓</span>
         </button>
         <div class="habit-body">
           <div class="habit-title">{{ habit.title }}</div>
-          <div class="habit-meta">
-            After {{ habit.anchorPrayer }} · {{ habit.minimalVersion }}
-            <template v-if="habit.paused"> · Paused</template>
-          </div>
+          <div class="habit-meta">After {{ habit.anchorPrayer }} · {{ habit.minimalVersion }}</div>
         </div>
-        <span v-if="!habit.paused && currentStreak(habit.id) > 0" class="pill streak"
+        <span v-if="habit.paused" class="pill new">Paused</span>
+        <span v-else-if="currentStreak(habit.id) > 0" class="pill streak"
           >{{ currentStreak(habit.id) }}-day</span
         >
-        <span v-else-if="!habit.paused && isNewHabit(habit.id)" class="pill new">New</span>
-        <span v-else-if="!habit.paused" class="pill risk">At risk</span>
+        <span v-else-if="isNewHabit(habit.id)" class="pill new">New</span>
+        <span v-else class="pill risk">At risk</span>
       </div>
     </div>
   </div>
@@ -77,5 +83,14 @@ const { habits, isCompletedToday, currentStreak, isNewHabit, toggleComplete } = 
 
 .habit-row {
   cursor: pointer;
+}
+
+.habit-check:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.habit-check:disabled:hover {
+  border-color: var(--border-strong);
+  transform: none;
 }
 </style>
