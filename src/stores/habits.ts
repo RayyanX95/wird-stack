@@ -77,6 +77,13 @@ export const useHabitsStore = defineStore(
       return isCompletedOn(habitId, toIso(new Date()));
     };
 
+    const isScheduledToday = (habitId: string): boolean => {
+      const habit = getHabitById(habitId);
+      if (!habit) return false;
+
+      return habit.days.includes(weekDayOf(new Date()));
+    };
+
     const toggleComplete = (habitId: string, date: string = toIso(new Date())) => {
       // Paused habits aren't part of the active routine — block completion
       // toggling here too, not just in the UI, since this is reachable
@@ -198,6 +205,7 @@ export const useHabitsStore = defineStore(
       getHabitById,
       isCompletedOn,
       isCompletedToday,
+      isScheduledToday,
       toggleComplete,
       currentStreak,
       longestStreak,

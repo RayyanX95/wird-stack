@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { Icon } from '@iconify/vue';
 import { useHabitsStore } from '@/stores/habits';
 import type { WeekDay } from '@/types';
 import { LoadingOverlay, ModalComponent } from '@/components';
@@ -17,8 +18,15 @@ const DAYS: { label: string; value: WeekDay }[] = [
 
 const route = useRoute();
 const router = useRouter();
-const { getHabitById, deleteHabit, togglePause, currentStreak, longestStreak, dayState } =
-  useHabitsStore();
+const {
+  getHabitById,
+  deleteHabit,
+  togglePause,
+  toggleComplete,
+  currentStreak,
+  longestStreak,
+  dayState,
+} = useHabitsStore();
 
 const showDeleteConfirm = ref(false);
 const showDeletedModal = ref(false);
@@ -27,28 +35,63 @@ const isTogglingPause = ref(false);
 const habitId = computed(() => route.params.id as string);
 const habit = computed(() => getHabitById(habitId.value));
 
-// Last 14 calendar days, oldest first, each resolved to its real state
-// (done / missed / not-scheduled) via the store — not static example data.
-const historyDays = computed(() => {
+const todayIso = new Date().toISOString().slice(0, 10);
+
+function startOfWeek(date: Date): Date {
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - start.getDay()); // back up to Sunday
+  return start;
+}
+
+// 0 = the week containing today, negative = weeks back in time. Users can
+// go back indefinitely but never forward past the current week.
+const weekOffset = ref(0);
+const canGoToNextWeek = computed(() => weekOffset.value < 0);
+
+const goToPreviousWeek = () => {
+  weekOffset.value -= 1;
+};
+
+const goToNextWeek = () => {
+  if (canGoToNextWeek.value) weekOffset.value += 1;
+};
+
+// Standard calendar week, Sunday–Saturday, resolved day-by-day to its real
+// state via the store — not static example data. Days after today are
+// "upcoming": they can't be scheduled/missed/done yet, regardless of what
+// dayState() would otherwise say about that weekday.
+const weekDays = computed(() => {
   if (!habit.value) return [];
+
+  const weekStart = startOfWeek(new Date());
+  weekStart.setDate(weekStart.getDate() + weekOffset.value * 7);
+
   const days = [];
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekStart);
+    d.setDate(d.getDate() + i);
     const iso = d.toISOString().slice(0, 10);
+    const isFuture = iso > todayIso;
     days.push({
       date: iso,
-      label: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
-      state: dayState(habitId.value, iso),
+      dayNumber: d.getDate(),
+      dowLabel: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
+      isToday: iso === todayIso,
+      state: isFuture ? 'upcoming' : dayState(habitId.value, iso),
     });
   }
   return days;
 });
 
-const historyWeeks = computed(() => [
-  historyDays.value.slice(0, 7),
-  historyDays.value.slice(7, 14),
-]);
+const weekRangeLabel = computed(() => {
+  if (weekDays.value.length === 0) return '';
+  const format = (iso: string) =>
+    new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return weekOffset.value === 0
+    ? 'This week'
+    : `${format(weekDays.value[0]!.date)} – ${format(weekDays.value[6]!.date)}`;
+});
 
 // fake delay — there's no real API call yet, this just gives the loading
 // overlay something to show before the toggle lands in the store.
@@ -138,22 +181,56 @@ const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.incl
       </div>
 
       <div>
-        <div class="text-label margin-bottom">Last 14 days</div>
-        <div class="history-grid">
-          <div v-for="(week, wi) in historyWeeks" :key="wi">
-            <div class="history-dow">
-              <span v-for="d in week" :key="d.date">{{ d.label }}</span>
-            </div>
-            <div class="history-week">
-              <div
-                v-for="d in week"
-                :key="d.date"
-                class="history-cell"
-                :class="{ on: d.state === 'done', missed: d.state === 'missed' }"
-                :title="d.date"
-              />
-            </div>
-          </div>
+        <div class="history-header">
+          <button
+            type="button"
+            class="week-nav"
+            aria-label="Previous week"
+            @click="goToPreviousWeek"
+          >
+            <Icon icon="lucide:chevron-left" />
+          </button>
+          <span class="text-label">{{ weekRangeLabel }}</span>
+          <button
+            type="button"
+            class="week-nav"
+            aria-label="Next week"
+            :disabled="!canGoToNextWeek"
+            @click="goToNextWeek"
+          >
+            <Icon icon="lucide:chevron-right" />
+          </button>
+        </div>
+
+        <div class="history-dow">
+          <span v-for="d in weekDays" :key="d.date">{{ d.dowLabel }}</span>
+        </div>
+        <div class="history-week">
+          <button
+            v-for="d in weekDays"
+            :key="d.date"
+            type="button"
+            class="history-cell"
+            :class="{
+              on: d.state === 'done',
+              missed: d.state === 'missed',
+              'not-scheduled': d.state === 'not-scheduled',
+              upcoming: d.state === 'upcoming',
+              today: d.isToday,
+            }"
+            :disabled="d.state === 'not-scheduled' || d.state === 'upcoming' || habit.paused"
+            :title="d.date"
+            :aria-label="
+              d.state === 'not-scheduled'
+                ? `${d.date} — not scheduled`
+                : d.state === 'upcoming'
+                  ? `${d.date} — upcoming`
+                  : `${d.date} — ${d.state === 'done' ? 'completed, click to unmark' : 'missed, click to mark done'}`
+            "
+            @click="toggleComplete(habit.id, d.date)"
+          >
+            <span v-if="d.state !== 'done'" class="day-number">{{ d.dayNumber }}</span>
+          </button>
         </div>
       </div>
 
@@ -194,8 +271,63 @@ const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.incl
   margin-bottom: 6px;
 }
 
-.history-grid > div + div {
-  margin-top: 8px;
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.history-header .text-label {
+  min-width: 96px;
+  text-align: center;
+}
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+.week-nav:hover:not(:disabled) {
+  background: var(--surface-alt);
+}
+.week-nav:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.day-number {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.history-cell.missed .day-number {
+  color: var(--warn);
+}
+.history-cell.not-scheduled .day-number,
+.history-cell.upcoming .day-number {
+  color: var(--text-faint);
+}
+
+.history-cell.upcoming {
+  background: var(--surface);
+  border-style: dashed;
+}
+
+.history-cell.today {
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 .btn-row {

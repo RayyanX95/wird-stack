@@ -3,7 +3,7 @@ import { TodoCard } from '@/components'
 import { useHabitsStore } from '@/stores/habits'
 import type { Prayer } from '@/types'
 
-const { habits, isCompletedToday, toggleComplete } = useHabitsStore()
+const { habits, isCompletedToday, isScheduledToday, toggleComplete } = useHabitsStore()
 
 const PRAYER_TIMES: Record<Prayer, string> = {
   Fajr: '05:14',
@@ -29,7 +29,7 @@ const PRAYER_TIMES: Record<Prayer, string> = {
 
   <main class="todo-list">
     <TodoCard
-      v-for="todo in habits.filter((h) => !h.paused)"
+      v-for="todo in habits.filter((h) => !h.paused && isScheduledToday(h.id))"
       :key="todo.id"
       :time="PRAYER_TIMES[todo.anchorPrayer]"
       :todo="todo"

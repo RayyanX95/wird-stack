@@ -565,19 +565,27 @@ h3 {
 .history-cell {
   flex: 1;
   aspect-ratio: 1;
+  padding: 0;
+  font: inherit;
   border-radius: 7px;
   background: var(--surface);
   border: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
-    transform var(--transition-fast);
+    transform var(--transition-fast),
+    filter var(--transition-fast);
 }
-.history-cell:hover {
+.history-cell:hover:not(:disabled) {
   transform: scale(1.08);
+  filter: brightness(0.97);
+}
+.history-cell:disabled {
+  cursor: not-allowed;
 }
 .history-cell.on {
   background: var(--accent);
@@ -593,6 +601,18 @@ h3 {
 .history-cell.missed {
   background: var(--warn-soft);
   border-color: rgba(var(--warn-rgb), 0.35);
+}
+.history-cell.not-scheduled {
+  background:
+    repeating-linear-gradient(
+      45deg,
+      var(--border-strong) 0,
+      var(--border-strong) 1.5px,
+      transparent 1.5px,
+      transparent 6px
+    ),
+    var(--surface-alt);
+  border-color: var(--border);
 }
 
 @media (prefers-reduced-motion: reduce) {
