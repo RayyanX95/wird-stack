@@ -26,7 +26,11 @@ const routes = [
     name: 'new-habit',
     component: NewHabitView,
   },
-
+  {
+    path: '/habits/:id/edit',
+    name: 'habit-edit',
+    component: NewHabitView,
+  },
   {
     path: '/stats',
     name: 'stats',

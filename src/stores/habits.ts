@@ -27,6 +27,20 @@ export const useHabitsStore = defineStore('habits', () => {
     habits.push(newHabit);
   };
 
+  const updateHabit = (habitId: string, payload: AddHabitPayload) => {
+    const habit = getHabitById(habitId);
+    if (!habit) return;
+
+    Object.assign(habit, payload);
+  };
+
+  const togglePause = (habitId: string) => {
+    const habit = getHabitById(habitId);
+    if (!habit) return;
+
+    habit.paused = !habit.paused;
+  };
+
   const deleteHabit = (habitId: string) => {
     const index = habits.findIndex((h) => h.id === habitId);
     if (index >= 0) habits.splice(index, 1);
@@ -155,6 +169,8 @@ export const useHabitsStore = defineStore('habits', () => {
     habits,
     completions,
     onAddHabit,
+    updateHabit,
+    togglePause,
     deleteHabit,
     getHabitById,
     isCompletedOn,

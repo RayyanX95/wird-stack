@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useHabitsStore } from '@/stores/habits';
 import type { WeekDay } from '@/types';
-import { ModalComponent } from '@/components';
+import { LoadingOverlay, ModalComponent } from '@/components';
 
 const DAYS: { label: string; value: WeekDay }[] = [
   { label: 'M', value: 'Mon' },
@@ -17,10 +17,12 @@ const DAYS: { label: string; value: WeekDay }[] = [
 
 const route = useRoute();
 const router = useRouter();
-const { getHabitById, deleteHabit, currentStreak, longestStreak, dayState } = useHabitsStore();
+const { getHabitById, deleteHabit, togglePause, currentStreak, longestStreak, dayState } =
+  useHabitsStore();
 
 const showDeleteConfirm = ref(false);
 const showDeletedModal = ref(false);
+const isTogglingPause = ref(false);
 
 const habitId = computed(() => route.params.id as string);
 const habit = computed(() => getHabitById(habitId.value));
@@ -48,6 +50,16 @@ const historyWeeks = computed(() => [
   historyDays.value.slice(7, 14),
 ]);
 
+// fake delay — there's no real API call yet, this just gives the loading
+// overlay something to show before the toggle lands in the store.
+const onTogglePause = async () => {
+  if (!habit.value) return;
+  isTogglingPause.value = true;
+  await new Promise((resolve) => setTimeout(resolve, 1200));
+  togglePause(habit.value.id);
+  isTogglingPause.value = false;
+};
+
 const onDelete = () => {
   showDeleteConfirm.value = true;
 };
@@ -72,6 +84,8 @@ const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.incl
   <div class="habit-details-page">
     <RouterLink to="/habits" class="back-link">Back to habits</RouterLink>
 
+    <LoadingOverlay :show="isTogglingPause" label="Saving…" />
+
     <ModalComponent
       v-model:open="showDeleteConfirm"
       title="Delete habit?"
@@ -92,7 +106,10 @@ const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.incl
 
     <template v-if="habit">
       <header class="page-header">
-        <h1 class="text-title margin-bottom">{{ habit.title }}</h1>
+        <h1 class="text-title margin-bottom">
+          {{ habit.title }}
+          <span v-if="habit.paused" class="pill new">Paused</span>
+        </h1>
         <span class="text-subtitle"
           >After {{ habit.anchorPrayer }} · {{ habit.minimalVersion }}</span
         >
@@ -141,8 +158,17 @@ const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.incl
       </div>
 
       <div class="btn-row">
-        <button type="button" class="btn ghost">Pause</button>
-        <button type="button" class="btn ghost">Edit</button>
+        <button
+          type="button"
+          class="btn ghost"
+          :disabled="isTogglingPause"
+          @click="onTogglePause"
+        >
+          {{ habit.paused ? 'Resume' : 'Pause' }}
+        </button>
+        <button type="button" class="btn ghost" @click="router.push(`${habit.id}/edit`)">
+          Edit
+        </button>
         <button type="button" class="btn danger" @click="onDelete">Delete</button>
       </div>
     </template>
