@@ -3,32 +3,33 @@
 <template>
   <aside class="sidebar">
     <RouterLink to="/" class="brand">
-      <!-- The five daily prayers as points along the arc of a day — the anchors
-           every habit in this app is stacked onto. Dot sizes swell toward the
-           midday zenith, which is what makes the row read as a curve with
-           rhythm rather than as scattered nodes.
+      <!-- The eight-point khatim star with a check cut out of it. The star is
+           two identical squares, one rotated 45 degrees — in Islamic geometry,
+           order built from a single shape repeated; also the Rub el Hizb, which
+           divides the Qur'an into equal portions for regular daily recitation.
+           Structure through repetition, which is what habit-building is. The
+           check is what makes it this app's mark: a habit kept.
 
-           Dot radii are balanced against the arc radius on purpose — enlarging
-           them closes the gaps and the mark collapses into a cluster of blobs.
-           Keep clear arc visible between every pair.
+           Deliberately tied to the idea, not the name: the app may be renamed,
+           so no letterform or wordmark.
 
-           There is deliberately no horizon/ground line; one was tried in every
-           position and always read as a slider track or underline. Don't add it
-           back. Mirrors public/favicon.svg; keep the two in sync. -->
+           The check is filled polygons plus three circles faking round caps,
+           NOT a stroked path — the same artwork generates public/favicon.ico
+           via ImageMagick, which silently drops stroked paths. Keep the two
+           squares on one circumradius or the star goes lopsided.
+
+           Mirrors public/favicon.svg; keep the two in sync. -->
       <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
         <rect width="32" height="32" rx="8" fill="var(--accent)" />
-        <path
-          d="M5 22.05 A 11 11 0 0 1 27 22.05"
-          fill="none"
-          stroke="#fff"
-          stroke-opacity="0.5"
-          stroke-width="2.2"
-        />
-        <circle cx="5" cy="22.05" r="1.9" fill="#fff" />
-        <circle cx="8.22" cy="14.27" r="2.3" fill="#fff" />
-        <circle cx="16" cy="11.05" r="3" fill="#fff" />
-        <circle cx="23.78" cy="14.27" r="2.3" fill="#fff" />
-        <circle cx="27" cy="22.05" r="1.9" fill="#fff" />
+
+        <polygon points="7.51,7.51 24.49,7.51 24.49,24.49 7.51,24.49" fill="#fff" />
+        <polygon points="16,4 28,16 16,28 4,16" fill="#fff" />
+
+        <polygon points="9.77,18.03 13.17,21.43 16.43,18.17 13.03,14.77" fill="var(--accent)" />
+        <polygon points="16.56,21.28 22.76,13.88 19.24,10.92 13.04,18.32" fill="var(--accent)" />
+        <circle cx="11.4" cy="16.4" r="2.3" fill="var(--accent)" />
+        <circle cx="14.8" cy="19.8" r="2.3" fill="var(--accent)" />
+        <circle cx="21" cy="12.4" r="2.3" fill="var(--accent)" />
       </svg>
       Sabr
     </RouterLink>

@@ -1,32 +1,44 @@
 <!--
-  Sabr mark: the five daily prayers as points along the arc of a day — the
-  anchors every habit in this app is stacked onto. Dot sizes swell toward the
-  midday zenith, which is what makes the row read as a curve with rhythm rather
-  than as scattered nodes.
+  App mark: the eight-point khatim star with a check cut out of it.
 
-  The dot radii are balanced against the arc radius on purpose. Enlarging them
-  (or shrinking the arc) closes the gaps between neighbours, the stroke survives
-  only as fragments, and the mark collapses into a cluster of blobs. Keep clear
-  arc visible between every pair.
+  The star is two identical squares, one rotated 45 degrees — in Islamic
+  geometry, order built from a single shape repeated; it is also the Rub el
+  Hizb, the marker dividing the Qur'an into equal portions for regular daily
+  recitation. Structure through repetition, which is what habit-building is.
+  The check in negative space is what makes it this app's mark rather than a
+  general motif: a habit kept.
 
-  There is also deliberately no horizon/ground line. One was tried floated,
-  fused to the arc endpoints, full-width, shortened and faded — in every
-  position it read as a slider track or an underline. Don't add it back.
+  Deliberately tied to the IDEA, not the name: the app may be renamed, so no
+  letterform or wordmark. Deliberately not a crescent/star, which reads as a
+  generic "Muslim app" badge (and is really a national flag symbol).
+
+  Notes for anyone adjusting this:
+  - The check is built from filled polygons plus three circles faking round
+    caps. It is NOT a stroked path, and tidying it into one will break the
+    build: ImageMagick renders this file to favicon.ico and silently drops
+    stroked paths, so the check would vanish from the .ico fallback while
+    still looking correct in the SVG. Verified, not assumed.
+  - Keep the whole mark SOLID. Earlier versions built from dots and hairline
+    strokes all dissolved or turned muddy at 16px.
+  - The two star squares share one circumradius (12). Different radii turn the
+    even eight-point star into a lopsided pinwheel.
+  - Don't enlarge the check much: past roughly this size its tips break the
+    star's outline and the silhouette stops reading.
+  - Artwork runs edge to edge with no corner radius; the browser and OS round
+    the tile. Adding rx here leaves transparent corners that show as white
+    notches in a browser tab.
 
   Mirrored in src/components/layout/AppSidebar.vue — keep the two in sync.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
   <rect width="32" height="32" fill="#1f6f5c" />
-  <path
-    d="M5 22.05 A 11 11 0 0 1 27 22.05"
-    fill="none"
-    stroke="#ffffff"
-    stroke-opacity="0.5"
-    stroke-width="2.2"
-  />
-  <circle cx="5" cy="22.05" r="1.9" fill="#ffffff" />
-  <circle cx="8.22" cy="14.27" r="2.3" fill="#ffffff" />
-  <circle cx="16" cy="11.05" r="3" fill="#ffffff" />
-  <circle cx="23.78" cy="14.27" r="2.3" fill="#ffffff" />
-  <circle cx="27" cy="22.05" r="1.9" fill="#ffffff" />
+
+  <polygon points="7.51,7.51 24.49,7.51 24.49,24.49 7.51,24.49" fill="#ffffff" />
+  <polygon points="16,4 28,16 16,28 4,16" fill="#ffffff" />
+
+  <polygon points="9.77,18.03 13.17,21.43 16.43,18.17 13.03,14.77" fill="#1f6f5c" />
+  <polygon points="16.56,21.28 22.76,13.88 19.24,10.92 13.04,18.32" fill="#1f6f5c" />
+  <circle cx="11.4" cy="16.4" r="2.3" fill="#1f6f5c" />
+  <circle cx="14.8" cy="19.8" r="2.3" fill="#1f6f5c" />
+  <circle cx="21" cy="12.4" r="2.3" fill="#1f6f5c" />
 </svg>
