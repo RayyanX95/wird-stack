@@ -3,7 +3,31 @@
 <template>
   <aside class="sidebar">
     <RouterLink to="/" class="brand">
-      <span class="brand-mark" />
+      <!-- The sun's path across a day, marked with the five daily prayers — the
+           anchors every habit in this app is stacked onto. Mirrors
+           public/favicon.svg; keep the two in sync. -->
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="var(--accent)" />
+        <path
+          d="M6 19.5 A 10 10 0 0 1 26 19.5"
+          fill="none"
+          stroke="#fff"
+          stroke-opacity="0.4"
+          stroke-width="2"
+        />
+        <circle cx="6" cy="19.5" r="2.2" fill="#fff" />
+        <circle cx="8.93" cy="12.43" r="2.2" fill="#fff" />
+        <circle cx="16" cy="9.5" r="3.6" fill="#fff" />
+        <circle cx="23.07" cy="12.43" r="2.2" fill="#fff" />
+        <circle cx="26" cy="19.5" r="2.2" fill="#fff" />
+        <path
+          d="M4.5 24.5 H27.5"
+          stroke="#fff"
+          stroke-opacity="0.85"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </svg>
       Sabr
     </RouterLink>
     <nav class="nav">
@@ -39,10 +63,9 @@
 }
 
 .brand-mark {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--accent);
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 0 0 4px var(--accent-soft);
   flex-shrink: 0;
 }
