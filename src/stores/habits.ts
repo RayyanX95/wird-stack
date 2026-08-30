@@ -1,17 +1,8 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { mockCompletions, mockHabits } from '@/mocks';
-import type { AddHabitPayload, HabitDayState, HabitItem, WeekDay } from '@/types';
-
-const WEEKDAYS: WeekDay[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-function toIso(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
-
-function weekDayOf(date: Date): WeekDay {
-  return WEEKDAYS[date.getDay()] as WeekDay;
-}
+import type { AddHabitPayload, HabitDayState, HabitItem } from '@/types';
+import { toIso, weekDayOf } from '@/utils';
 
 export const useHabitsStore = defineStore(
   'habits',

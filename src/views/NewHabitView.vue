@@ -3,22 +3,15 @@ import { computed, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue';
 import type { Prayer, WeekDay } from '@/types';
+import { PRAYERS, WEEKDAY_DISPLAY_ORDER, WEEKDAY_SHORT_LABELS } from '@/types';
+import { sleep } from '@/utils';
 import { habitSchema, type HabitFormValues } from './schema';
 import { useHabitsStore } from '@/stores/habits';
 import { LoadingOverlay, ModalComponent } from '@/components';
 
 const router = useRouter();
 
-const PRAYERS: Prayer[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-const DAYS: { label: string; value: WeekDay }[] = [
-  { label: 'M', value: 'Mon' },
-  { label: 'T', value: 'Tue' },
-  { label: 'W', value: 'Wed' },
-  { label: 'T', value: 'Thu' },
-  { label: 'F', value: 'Fri' },
-  { label: 'S', value: 'Sat' },
-  { label: 'S', value: 'Sun' },
-];
+const DAYS = WEEKDAY_DISPLAY_ORDER.map((value) => ({ value, label: WEEKDAY_SHORT_LABELS[value] }));
 
 const route = useRoute();
 const { onAddHabit, updateHabit, getHabitById } = useHabitsStore();
@@ -78,7 +71,7 @@ async function handleSubmit() {
   // fake delay — there's no real API call yet, this just gives the loading
   // overlay something to show before the habit lands in the store.
   isSubmitting.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  await sleep(2000);
   isSubmitting.value = false;
 
   if (isEditing.value && habit.value) {
@@ -210,44 +203,8 @@ async function handleSubmit() {
   max-width: 420px;
 }
 
-.page-header {
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-}
-
-.margin-bottom {
-  margin-bottom: 6px;
-}
-
 .btn-row {
   display: flex;
   gap: 16px;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 6px;
-  padding: 56px 16px;
-}
-
-.empty-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 8px;
-  background: var(--surface-alt);
-  color: var(--text-faint);
-  font-size: 28px;
-}
-
-.empty-state .text-subtitle {
-  max-width: 320px;
-  margin-bottom: 18px;
 }
 </style>

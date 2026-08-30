@@ -57,10 +57,6 @@ const PRAYER_TIMES: Record<Prayer, string> = {
   gap: 2px;
 }
 
-.margin-bottom {
-  margin-bottom: 6px;
-}
-
 .todo-list {
   display: flex;
   flex-direction: column;

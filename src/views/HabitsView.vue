@@ -71,10 +71,6 @@ const { habits, isCompletedToday, currentStreak, isNewHabit, toggleComplete } = 
   border-bottom: 1px solid var(--border);
 }
 
-.margin-bottom {
-  margin-bottom: 6px;
-}
-
 .habit-list {
   display: flex;
   flex-direction: column;

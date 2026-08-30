@@ -3,18 +3,9 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue';
 import { useHabitsStore } from '@/stores/habits';
-import type { WeekDay } from '@/types';
+import { WEEKDAY_DISPLAY_ORDER } from '@/types';
+import { sleep, startOfWeek, toIso } from '@/utils';
 import { LoadingOverlay, ModalComponent } from '@/components';
-
-const DAYS: { label: string; value: WeekDay }[] = [
-  { label: 'M', value: 'Mon' },
-  { label: 'T', value: 'Tue' },
-  { label: 'W', value: 'Wed' },
-  { label: 'T', value: 'Thu' },
-  { label: 'F', value: 'Fri' },
-  { label: 'S', value: 'Sat' },
-  { label: 'S', value: 'Sun' },
-];
 
 const route = useRoute();
 const router = useRouter();
@@ -35,14 +26,7 @@ const isTogglingPause = ref(false);
 const habitId = computed(() => route.params.id as string);
 const habit = computed(() => getHabitById(habitId.value));
 
-const todayIso = new Date().toISOString().slice(0, 10);
-
-function startOfWeek(date: Date): Date {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  start.setDate(start.getDate() - start.getDay()); // back up to Sunday
-  return start;
-}
+const todayIso = toIso(new Date());
 
 // 0 = the week containing today, negative = weeks back in time. Users can
 // go back indefinitely but never forward past the current week.
@@ -71,7 +55,7 @@ const weekDays = computed(() => {
   for (let i = 0; i < 7; i++) {
     const d = new Date(weekStart);
     d.setDate(d.getDate() + i);
-    const iso = d.toISOString().slice(0, 10);
+    const iso = toIso(d);
     const isFuture = iso > todayIso;
     days.push({
       date: iso,
@@ -107,7 +91,7 @@ const createdOnLabel = computed(() => {
 const onTogglePause = async () => {
   if (!habit.value) return;
   isTogglingPause.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 1200));
+  await sleep(1200);
   togglePause(habit.value.id);
   isTogglingPause.value = false;
 };
@@ -129,7 +113,9 @@ watch(showDeletedModal, (isOpen) => {
   if (!isOpen) router.push('/habits');
 });
 
-const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.includes(day.value)));
+const scheduledDays = computed(() =>
+  WEEKDAY_DISPLAY_ORDER.filter((day) => habit.value?.days.includes(day)),
+);
 </script>
 
 <template>
@@ -184,8 +170,8 @@ const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.incl
       <div class="field">
         <div class="field-label">Set in Days</div>
         <div class="day-pills">
-          <span v-for="day in scheduledDays" :key="day.value" class="day-pill selected">
-            {{ day.value }}
+          <span v-for="day in scheduledDays" :key="day" class="day-pill selected">
+            {{ day }}
           </span>
         </div>
       </div>
@@ -270,15 +256,6 @@ const scheduledDays = computed(() => DAYS.filter((day) => habit.value?.days.incl
   flex-direction: column;
   gap: 18px;
   max-width: 420px;
-}
-
-.page-header {
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-}
-
-.margin-bottom {
-  margin-bottom: 6px;
 }
 
 .created-on {

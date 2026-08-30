@@ -1,6 +1,41 @@
 export type Prayer = 'Fajr' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
 export type WeekDay = 'Sun' | 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat';
 
+export const PRAYERS: Prayer[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+
+// Index-aligned with Date.getDay() (0 = Sunday) — for looking up a weekday by
+// its numeric index. See utils/date.ts#weekDayOf.
+export const WEEKDAY_ORDER_SUN_FIRST: WeekDay[] = [
+  'Sun',
+  'Mon',
+  'Tue',
+  'Wed',
+  'Thu',
+  'Fri',
+  'Sat',
+];
+
+// Mon-first — how weekdays are listed in the UI (day pickers, weekly charts).
+export const WEEKDAY_DISPLAY_ORDER: WeekDay[] = [
+  'Mon',
+  'Tue',
+  'Wed',
+  'Thu',
+  'Fri',
+  'Sat',
+  'Sun',
+];
+
+export const WEEKDAY_SHORT_LABELS: Record<WeekDay, string> = {
+  Mon: 'M',
+  Tue: 'T',
+  Wed: 'W',
+  Thu: 'T',
+  Fri: 'F',
+  Sat: 'S',
+  Sun: 'S',
+};
+
 export interface AddHabitPayload {
   title: string;
   anchorPrayer: Prayer;
