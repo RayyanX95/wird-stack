@@ -3,30 +3,32 @@
 <template>
   <aside class="sidebar">
     <RouterLink to="/" class="brand">
-      <!-- The sun's path across a day, marked with the five daily prayers — the
-           anchors every habit in this app is stacked onto. Mirrors
-           public/favicon.svg; keep the two in sync. -->
+      <!-- The five daily prayers as points along the arc of a day — the anchors
+           every habit in this app is stacked onto. Dot sizes swell toward the
+           midday zenith, which is what makes the row read as a curve with
+           rhythm rather than as scattered nodes.
+
+           Dot radii are balanced against the arc radius on purpose — enlarging
+           them closes the gaps and the mark collapses into a cluster of blobs.
+           Keep clear arc visible between every pair.
+
+           There is deliberately no horizon/ground line; one was tried in every
+           position and always read as a slider track or underline. Don't add it
+           back. Mirrors public/favicon.svg; keep the two in sync. -->
       <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
         <rect width="32" height="32" rx="8" fill="var(--accent)" />
         <path
-          d="M6 19.5 A 10 10 0 0 1 26 19.5"
+          d="M5 22.05 A 11 11 0 0 1 27 22.05"
           fill="none"
           stroke="#fff"
-          stroke-opacity="0.4"
-          stroke-width="2"
+          stroke-opacity="0.5"
+          stroke-width="2.2"
         />
-        <circle cx="6" cy="19.5" r="2.2" fill="#fff" />
-        <circle cx="8.93" cy="12.43" r="2.2" fill="#fff" />
-        <circle cx="16" cy="9.5" r="3.6" fill="#fff" />
-        <circle cx="23.07" cy="12.43" r="2.2" fill="#fff" />
-        <circle cx="26" cy="19.5" r="2.2" fill="#fff" />
-        <path
-          d="M4.5 24.5 H27.5"
-          stroke="#fff"
-          stroke-opacity="0.85"
-          stroke-width="2"
-          stroke-linecap="round"
-        />
+        <circle cx="5" cy="22.05" r="1.9" fill="#fff" />
+        <circle cx="8.22" cy="14.27" r="2.3" fill="#fff" />
+        <circle cx="16" cy="11.05" r="3" fill="#fff" />
+        <circle cx="23.78" cy="14.27" r="2.3" fill="#fff" />
+        <circle cx="27" cy="22.05" r="1.9" fill="#fff" />
       </svg>
       Sabr
     </RouterLink>

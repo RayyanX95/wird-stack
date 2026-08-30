@@ -1,22 +1,32 @@
+<!--
+  Sabr mark: the five daily prayers as points along the arc of a day — the
+  anchors every habit in this app is stacked onto. Dot sizes swell toward the
+  midday zenith, which is what makes the row read as a curve with rhythm rather
+  than as scattered nodes.
+
+  The dot radii are balanced against the arc radius on purpose. Enlarging them
+  (or shrinking the arc) closes the gaps between neighbours, the stroke survives
+  only as fragments, and the mark collapses into a cluster of blobs. Keep clear
+  arc visible between every pair.
+
+  There is also deliberately no horizon/ground line. One was tried floated,
+  fused to the arc endpoints, full-width, shortened and faded — in every
+  position it read as a slider track or an underline. Don't add it back.
+
+  Mirrored in src/components/layout/AppSidebar.vue — keep the two in sync.
+-->
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
   <rect width="32" height="32" fill="#1f6f5c" />
   <path
-    d="M6 19.5 A 10 10 0 0 1 26 19.5"
+    d="M5 22.05 A 11 11 0 0 1 27 22.05"
     fill="none"
     stroke="#ffffff"
-    stroke-opacity="0.4"
-    stroke-width="2"
+    stroke-opacity="0.5"
+    stroke-width="2.2"
   />
-  <circle cx="6" cy="19.5" r="2.2" fill="#ffffff" />
-  <circle cx="8.93" cy="12.43" r="2.2" fill="#ffffff" />
-  <circle cx="16" cy="9.5" r="3.6" fill="#ffffff" />
-  <circle cx="23.07" cy="12.43" r="2.2" fill="#ffffff" />
-  <circle cx="26" cy="19.5" r="2.2" fill="#ffffff" />
-  <path
-    d="M4.5 24.5 H27.5"
-    stroke="#ffffff"
-    stroke-opacity="0.85"
-    stroke-width="2"
-    stroke-linecap="round"
-  />
+  <circle cx="5" cy="22.05" r="1.9" fill="#ffffff" />
+  <circle cx="8.22" cy="14.27" r="2.3" fill="#ffffff" />
+  <circle cx="16" cy="11.05" r="3" fill="#ffffff" />
+  <circle cx="23.78" cy="14.27" r="2.3" fill="#ffffff" />
+  <circle cx="27" cy="22.05" r="1.9" fill="#ffffff" />
 </svg>
