@@ -12,7 +12,8 @@
     "lint": "run-s \"lint:*\"",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
-    "format": "oxfmt src/"
+    "format": "oxfmt src/",
+    "logo": "cp src/assets/logo.svg public/favicon.svg && magick src/assets/logo.svg -background none -define icon:auto-resize=16,32,48,64 public/favicon.ico"
   },
   "dependencies": {
     "pinia": "^4.0.2",

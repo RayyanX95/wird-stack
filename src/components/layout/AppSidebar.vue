@@ -1,36 +1,21 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+// The mark's geometry lives in one place — see src/assets/logo.svg for what it
+// means and the constraints on changing it. Inlined rather than used as an
+// <img> so it inherits the page's rendering, and imported rather than copied so
+// the sidebar and the favicon can't drift apart.
+//
+// That file is mostly documentation (~2.9KB of comment around ~0.6KB of
+// markup), so strip comments before injecting it — otherwise the whole essay
+// lands in the DOM on every render.
+import logoRaw from '@/assets/logo.svg?raw';
+
+const logoSvg = logoRaw.replace(/<!--[\s\S]*?-->/g, '').trim();
+</script>
 
 <template>
   <aside class="sidebar">
     <RouterLink to="/" class="brand">
-      <!-- The eight-point khatim star with a check cut out of it. The star is
-           two identical squares, one rotated 45 degrees — in Islamic geometry,
-           order built from a single shape repeated; also the Rub el Hizb, which
-           divides the Qur'an into equal portions for regular daily recitation.
-           Structure through repetition, which is what habit-building is. The
-           check is what makes it this app's mark: a habit kept.
-
-           Deliberately tied to the idea, not the name: the app may be renamed,
-           so no letterform or wordmark.
-
-           The check is filled polygons plus three circles faking round caps,
-           NOT a stroked path — the same artwork generates public/favicon.ico
-           via ImageMagick, which silently drops stroked paths. Keep the two
-           squares on one circumradius or the star goes lopsided.
-
-           Mirrors public/favicon.svg; keep the two in sync. -->
-      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-        <rect width="32" height="32" rx="8" fill="var(--accent)" />
-
-        <polygon points="7.51,7.51 24.49,7.51 24.49,24.49 7.51,24.49" fill="#fff" />
-        <polygon points="16,4 28,16 16,28 4,16" fill="#fff" />
-
-        <polygon points="9.77,18.03 13.17,21.43 16.43,18.17 13.03,14.77" fill="var(--accent)" />
-        <polygon points="16.56,21.28 22.76,13.88 19.24,10.92 13.04,18.32" fill="var(--accent)" />
-        <circle cx="11.4" cy="16.4" r="2.3" fill="var(--accent)" />
-        <circle cx="14.8" cy="19.8" r="2.3" fill="var(--accent)" />
-        <circle cx="21" cy="12.4" r="2.3" fill="var(--accent)" />
-      </svg>
+      <span class="brand-mark" aria-hidden="true" v-html="logoSvg" />
       Sabr
     </RouterLink>
     <nav class="nav">
@@ -65,12 +50,23 @@
   padding: 0 4px;
 }
 
+/* The source SVG is square-cornered so it works as a favicon; the rounding for
+   in-app use is applied here, which needs overflow:hidden to clip the artwork. */
 .brand-mark {
+  display: block;
   width: 24px;
   height: 24px;
+  overflow: hidden;
   border-radius: var(--radius-sm);
   box-shadow: 0 0 0 4px var(--accent-soft);
   flex-shrink: 0;
+}
+
+/* :deep, because v-html content isn't touched by scoped-style attributes. */
+.brand-mark :deep(svg) {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .nav {
