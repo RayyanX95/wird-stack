@@ -1,8 +1,19 @@
 /**
- * Sabr design tokens — light theme.
- * Source: wireframe spec (theme colors + type system).
+ * Sabr design tokens.
+ *
+ * Every value the UI is allowed to use lives here. Components reference
+ * tokens, never raw hex/px — that's what keeps light and dark in sync and
+ * keeps the type/spacing rhythm from drifting.
+ *
+ * Theming: the light palette is defined on bare `:root` so it is always the
+ * baseline. Dark is layered twice — once under `prefers-color-scheme` (guarded
+ * so an explicit light choice wins) and once under `[data-theme='dark']` (so
+ * an explicit dark choice wins even on a light OS). Only the color tokens are
+ * redefined; scale, motion and type are theme-independent.
  */
 :root {
+  color-scheme: light;
+
   /* ---------- Color ---------- */
 
   /* Page background — body, empty states. The palest tone; nothing else should use it. */
@@ -11,6 +22,8 @@
   --surface: #ffffff;
   /* Secondary surface, one step off pure white — sidebar background, paused/disabled rows, subtle section fills. */
   --surface-alt: #e9ede6;
+  /* Translucent surface for glass/blur panels (sticky headers, mobile tab bar). */
+  --surface-blur: rgba(255, 255, 255, 0.78);
   /* Default hairline border — card/input/row outlines. */
   --border: #d7dcd0;
   /* Emphasized border — selected pill/tab outlines, dividers that need to read as intentional, not incidental. */
@@ -18,10 +31,11 @@
 
   /* Primary text — headings, titles, body copy. */
   --text: #1e2a24;
-  /* Secondary text — captions, meta lines (e.g. "After Fajr · 1 verse"), helper text. */
+  /* Secondary text — captions, meta lines (e.g. "After Fajr · 1 verse"), helper text. 5.8:1 on --surface. */
   --text-muted: #5c6b61;
-  /* Tertiary text — placeholders, disabled labels, the least important text on a screen. */
-  --text-faint: #8b968c;
+  /* Tertiary text — placeholders, disabled labels, the least important text on a screen.
+     Kept at 4.6:1 on --surface: it is the *least* important text, not inaccessible text. */
+  --text-faint: #66746a;
 
   /* Brand accent (teal) — primary buttons, active nav item, links, "completed" state, the app's one confident color. */
   --accent: #1f6f5c;
@@ -29,28 +43,39 @@
   --accent-hover: #175a4a;
   /* Accent tint — backgrounds behind accent-colored content (active nav pill, "done" badge, "next prayer" block). */
   --accent-soft: #dcece6;
+  /* Text/icon color that is legible *on* --accent-soft. */
+  --accent-on-soft: #175a4a;
+  /* Text/icon color on a solid --accent fill. */
+  --accent-contrast: #ffffff;
 
   /* Streak / achievement color — reserve for streak counters and streak badges ONLY. Never use as a second accent. */
-  --gold: #b8863c;
+  --gold: #8a6224;
   /* Gold tint — background behind streak badges/numbers. */
   --gold-soft: #f3e6cf;
 
   /* Warning / at-risk color — "missed a day," destructive actions (delete), risk states. Semantic, not decorative. */
-  --warn: #b5533c;
+  --warn: #a8452f;
   /* Warning tint — background behind at-risk badges or warning banners. */
   --warn-soft: #f5e0da;
 
   /* Informational color — neutral notices, "info" modal/toast state. Semantic, not decorative. */
-  --info: #3b6fa0;
+  --info: #2f5f8c;
   /* Info tint — background behind info badges/banners. */
   --info-soft: #dde8f2;
 
   /* RGB channels of the colors above, for building tinted shadows/glows via rgba() — keep in sync with the hex values. */
   --accent-rgb: 31, 111, 92;
-  --gold-rgb: 184, 134, 60;
-  --warn-rgb: 181, 83, 60;
-  --info-rgb: 59, 111, 160;
+  --gold-rgb: 138, 98, 36;
+  --warn-rgb: 168, 69, 47;
+  --info-rgb: 47, 95, 140;
   --text-rgb: 30, 42, 36;
+  /* Channels of whatever "raised" reads as in this theme — for inner highlights on gradients. */
+  --highlight-rgb: 255, 255, 255;
+  --highlight-strength: 0.6;
+
+  /* Ambient page washes — the two soft radial tints behind everything. */
+  --wash-accent: rgba(var(--accent-rgb), 0.06);
+  --wash-gold: rgba(var(--gold-rgb), 0.05);
 
   /* Elevation shadows — resting, hover/raised, and modal/popover depth. Tinted with --text-rgb so they read as soft, not gray. */
   --shadow-sm: 0 1px 2px rgba(var(--text-rgb), 0.05);
@@ -59,14 +84,17 @@
   /* Accent-tinted glow — the "next up" prayer block, primary button hover. Reserve for accent-colored elements only. */
   --shadow-accent: 0 2px 6px rgba(var(--accent-rgb), 0.12), 0 14px 28px -14px rgba(var(--accent-rgb), 0.38);
   /* Focus ring — keyboard focus outline for interactive elements. Always visible, never suppressed. */
-  --focus-ring: 0 0 0 3px var(--accent-soft);
+  --focus-ring: 0 0 0 3px rgba(var(--accent-rgb), 0.35);
 
   /* ---------- Motion ---------- */
 
   /* Standard easing/duration for hover, press, and toggle transitions — keep every interaction on this one curve. */
   --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  /* Overshoot curve — reserve for "it landed" moments (check-off pop, modal entry). */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --transition-fast: 130ms var(--ease);
   --transition: 180ms var(--ease);
+  --transition-slow: 320ms var(--ease);
 
   /* ---------- Type ---------- */
 
@@ -77,12 +105,162 @@
   /* Data face — anything tabular/numeric: prayer times, streak counts, percentages, dates. */
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
+  /* Type scale — the only font sizes in the app. Anything not on this ladder is a bug. */
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 15px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --text-3xl: clamp(30px, 5vw, 40px);
+  --text-hero: clamp(38px, 7vw, 68px);
+
+  /* ---------- Space ---------- */
+
+  /* 4px-based spacing ladder — every gap, pad and margin comes from here. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
   /* ---------- Radius ---------- */
 
   /* Small radius — buttons, pills, form inputs, small tab-like controls. */
   --radius-sm: 7px;
   /* Medium radius — habit rows, prayer blocks, stat cards. */
   --radius-md: 10px;
-  /* Large radius — top-level containers (modals, larger panels), rarely needed at this app's scale. */
+  /* Large radius — top-level containers (modals, larger panels). */
   --radius-lg: 14px;
+  /* Extra-large — landing-page cards and hero surfaces. */
+  --radius-xl: 22px;
+  /* Fully round — pills, avatars, icon buttons. */
+  --radius-full: 999px;
+
+  /* ---------- Layout ---------- */
+
+  /* Reading measure for a single content column, and the sidebar's fixed width. */
+  --measure: 640px;
+  --measure-wide: 900px;
+  --sidebar-w: 220px;
+  /* Height of the mobile tab bar — pages pad their bottom by this so nothing hides under it. */
+  --tabbar-h: 62px;
+
+  /* ---------- Layers ---------- */
+
+  --z-sticky: 20;
+  --z-tabbar: 40;
+  --z-overlay: 80;
+  --z-modal: 90;
+}
+
+/* Dark palette — applied when the OS asks for dark and the user hasn't
+   explicitly chosen light. Only colors change; scale/motion/type are shared. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --bg: #0f1411;
+    --surface: #171e1a;
+    --surface-alt: #1e2721;
+    --surface-blur: rgba(23, 30, 26, 0.8);
+    --border: #2a352d;
+    --border-strong: #3d4a41;
+
+    --text: #e9efe9;
+    --text-muted: #a4b2a7;
+    --text-faint: #7f8d83;
+
+    --accent: #4cbe9d;
+    --accent-hover: #6ad3b4;
+    --accent-soft: #16332b;
+    --accent-on-soft: #7fdcbf;
+    --accent-contrast: #06231c;
+
+    --gold: #d9a75d;
+    --gold-soft: #33280f;
+
+    --warn: #e3835f;
+    --warn-soft: #3a1d14;
+
+    --info: #74a9dc;
+    --info-soft: #16283a;
+
+    --accent-rgb: 76, 190, 157;
+    --gold-rgb: 217, 167, 93;
+    --warn-rgb: 227, 131, 95;
+    --info-rgb: 116, 169, 220;
+    --text-rgb: 233, 239, 233;
+    --highlight-rgb: 255, 255, 255;
+    --highlight-strength: 0.05;
+
+    --wash-accent: rgba(var(--accent-rgb), 0.07);
+    --wash-gold: rgba(var(--gold-rgb), 0.05);
+
+    /* Shadows in dark can't be tinted with --text-rgb (now near-white) — they
+       key off true black, and lean harder so elevation still reads. */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+    --shadow-lg: 0 4px 10px rgba(0, 0, 0, 0.45), 0 20px 40px -16px rgba(0, 0, 0, 0.8);
+    --shadow-accent: 0 2px 6px rgba(0, 0, 0, 0.45), 0 14px 28px -14px rgba(var(--accent-rgb), 0.4);
+    --focus-ring: 0 0 0 3px rgba(var(--accent-rgb), 0.45);
+  }
+}
+
+/* Explicit dark choice — wins regardless of what the OS prefers. Duplicated
+   rather than shared with the media block because a media query can't be
+   re-entered from a selector. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0f1411;
+  --surface: #171e1a;
+  --surface-alt: #1e2721;
+  --surface-blur: rgba(23, 30, 26, 0.8);
+  --border: #2a352d;
+  --border-strong: #3d4a41;
+
+  --text: #e9efe9;
+  --text-muted: #a4b2a7;
+  --text-faint: #7f8d83;
+
+  --accent: #4cbe9d;
+  --accent-hover: #6ad3b4;
+  --accent-soft: #16332b;
+  --accent-on-soft: #7fdcbf;
+  --accent-contrast: #06231c;
+
+  --gold: #d9a75d;
+  --gold-soft: #33280f;
+
+  --warn: #e3835f;
+  --warn-soft: #3a1d14;
+
+  --info: #74a9dc;
+  --info-soft: #16283a;
+
+  --accent-rgb: 76, 190, 157;
+  --gold-rgb: 217, 167, 93;
+  --warn-rgb: 227, 131, 95;
+  --info-rgb: 116, 169, 220;
+  --text-rgb: 233, 239, 233;
+  --highlight-rgb: 255, 255, 255;
+  --highlight-strength: 0.05;
+
+  --wash-accent: rgba(var(--accent-rgb), 0.07);
+  --wash-gold: rgba(var(--gold-rgb), 0.05);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 4px 10px rgba(0, 0, 0, 0.45), 0 20px 40px -16px rgba(0, 0, 0, 0.8);
+  --shadow-accent: 0 2px 6px rgba(0, 0, 0, 0.45), 0 14px 28px -14px rgba(var(--accent-rgb), 0.4);
+  --focus-ring: 0 0 0 3px rgba(var(--accent-rgb), 0.45);
 }

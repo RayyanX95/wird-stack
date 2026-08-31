@@ -4,10 +4,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue';
 import type { Prayer, WeekDay } from '@/types';
 import { PRAYERS, WEEKDAY_DISPLAY_ORDER, WEEKDAY_SHORT_LABELS } from '@/types';
-import { sleep } from '@/utils';
 import { habitSchema, type HabitFormValues } from './schema';
 import { useHabitsStore } from '@/stores/habits';
-import { LoadingOverlay, ModalComponent } from '@/components';
+import { ModalComponent } from '@/components';
 
 const router = useRouter();
 
@@ -34,7 +33,6 @@ const selectedDays = ref<WeekDay[]>(habit.value?.days ?? DAYS.map((d) => d.value
 const errors = reactive<Partial<Record<keyof HabitFormValues, string>>>({});
 
 const showSuccessModal = ref(false);
-const isSubmitting = ref(false);
 
 function toggleDay(day: WeekDay) {
   selectedDays.value = selectedDays.value.includes(day)
@@ -49,7 +47,7 @@ const resetForm = () => {
   anchorPrayer.value = 'Fajr';
 };
 
-async function handleSubmit() {
+function handleSubmit() {
   const result = habitSchema.safeParse({
     title: title.value,
     anchorPrayer: anchorPrayer.value,
@@ -68,12 +66,6 @@ async function handleSubmit() {
     return;
   }
 
-  // fake delay — there's no real API call yet, this just gives the loading
-  // overlay something to show before the habit lands in the store.
-  isSubmitting.value = true;
-  await sleep(2000);
-  isSubmitting.value = false;
-
   if (isEditing.value && habit.value) {
     updateHabit(habit.value.id, result.data);
   } else {
@@ -85,7 +77,7 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="new-habit-page">
+  <div class="view new-habit-page">
     <div v-if="notFound" class="empty-state">
       <div class="empty-icon">
         <Icon icon="lucide:search-x" />
@@ -116,8 +108,6 @@ async function handleSubmit() {
         @success="router.push(isEditing ? `/habits/${habit!.id}` : '/habits')"
         variant="success"
       />
-
-      <LoadingOverlay :show="isSubmitting" label="Stacking your habit…" />
 
       <form @submit.prevent="handleSubmit">
         <div class="field">
@@ -186,7 +176,7 @@ async function handleSubmit() {
           <RouterLink :to="isEditing ? `/habits/${habit!.id}` : '/habits'" class="btn ghost">
             Cancel
           </RouterLink>
-          <button type="submit" class="btn primary" :disabled="isSubmitting">
+          <button type="submit" class="btn primary">
             {{ isEditing ? 'Update habit' : 'Create habit' }}
           </button>
         </div>
@@ -199,12 +189,24 @@ async function handleSubmit() {
 .new-habit-page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  max-width: 420px;
+  gap: var(--space-5);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
 }
 
 .btn-row {
   display: flex;
-  gap: 16px;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 720px) {
+  .btn-row .btn {
+    flex: 1;
+  }
 }
 </style>

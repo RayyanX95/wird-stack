@@ -9,8 +9,13 @@ function daysAgo(n: number): Date {
   return d
 }
 
+// Local-calendar date key — must match utils/date.ts#toIso exactly, or the
+// seeded completions land on the wrong day for anyone outside UTC.
 function iso(d: Date): string {
-  return d.toISOString().slice(0, 10)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
 }
 
 function isoDaysAgo(n: number): string {

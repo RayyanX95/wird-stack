@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { mockCompletions, mockHabits } from '@/mocks';
 import type { AddHabitPayload, HabitDayState, HabitItem } from '@/types';
-import { toIso, weekDayOf } from '@/utils';
+import { fromIso, toIso, weekDayOf } from '@/utils';
 
 export const useHabitsStore = defineStore(
   'habits',
@@ -76,15 +76,25 @@ export const useHabitsStore = defineStore(
     };
 
     const toggleComplete = (habitId: string, date: string = toIso(new Date())) => {
+      const habit = getHabitById(habitId);
       // Paused habits aren't part of the active routine — block completion
       // toggling here too, not just in the UI, since this is reachable
       // directly as a store action.
-      if (getHabitById(habitId)?.paused) return;
+      if (habit?.paused) return;
 
       const index = completions.value.findIndex((c) => c.habitId === habitId && c.date === date);
       if (index >= 0) {
+        // Removal is always allowed. A completion can legitimately exist on a
+        // day the habit is no longer scheduled for — the user edited the
+        // schedule after logging it — and refusing to delete that would strand
+        // a row nothing in the UI can reach.
         completions.value.splice(index, 1);
       } else {
+        // Adding one, though, is refused off-schedule: dayState() reports such
+        // a day as 'not-scheduled', so stats never count it and streaks skip
+        // over it. The tick would read as done and mean nothing.
+        if (habit && !habit.days.includes(weekDayOf(fromIso(date)))) return;
+
         completions.value.push({
           id: crypto.randomUUID(),
           habitId,

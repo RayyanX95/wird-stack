@@ -1,15 +1,63 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="en">
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <title>Sabr — small acts, kept up daily</title>
+    <meta
+      name="description"
+      content="Sabr is a habit tracker built around salah. Anchor one small act to each prayer you already pray, keep it tiny, and watch the streak build."
+    >
+    <meta name="theme-color" content="#f3f4ef">
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="alternate icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sabr</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/favicon.svg">
+
+    <!-- Social preview -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Sabr — small acts, kept up daily">
+    <meta
+      property="og:description"
+      content="Anchor one small act to each prayer you already pray. Free, no account, works offline."
+    >
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!--
+      Theme, applied before first paint.
+
+      This has to run synchronously in <head>, ahead of the stylesheet and the
+      app bundle: if it waited for Vue to mount, a user who chose dark would
+      get a full frame of the light palette first — the white flash that makes
+      dark modes feel bolted on. It reads the same key useTheme.ts writes.
+    -->
+    <script>
+      (function () {
+        try {
+          var pref = localStorage.getItem('sabr-theme');
+          if (pref === 'dark' || pref === 'light') {
+            document.documentElement.setAttribute('data-theme', pref);
+          }
+          var dark =
+            pref === 'dark' ||
+            (pref !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) {
+            document
+              .querySelector('meta[name="theme-color"]')
+              .setAttribute('content', '#0f1411');
+          }
+        } catch (e) {
+          /* Storage blocked — the CSS media query still gives a correct theme. */
+        }
+      })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     >
   </head>

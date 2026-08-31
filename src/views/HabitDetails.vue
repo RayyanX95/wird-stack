@@ -4,8 +4,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue';
 import { useHabitsStore } from '@/stores/habits';
 import { WEEKDAY_DISPLAY_ORDER } from '@/types';
-import { sleep, startOfWeek, toIso } from '@/utils';
-import { LoadingOverlay, ModalComponent } from '@/components';
+import { startOfWeek, toIso } from '@/utils';
+import { ModalComponent } from '@/components';
 
 const route = useRoute();
 const router = useRouter();
@@ -21,7 +21,6 @@ const {
 
 const showDeleteConfirm = ref(false);
 const showDeletedModal = ref(false);
-const isTogglingPause = ref(false);
 
 const habitId = computed(() => route.params.id as string);
 const habit = computed(() => getHabitById(habitId.value));
@@ -86,14 +85,9 @@ const createdOnLabel = computed(() => {
   });
 });
 
-// fake delay — there's no real API call yet, this just gives the loading
-// overlay something to show before the toggle lands in the store.
-const onTogglePause = async () => {
+const onTogglePause = () => {
   if (!habit.value) return;
-  isTogglingPause.value = true;
-  await sleep(1200);
   togglePause(habit.value.id);
-  isTogglingPause.value = false;
 };
 
 const onDelete = () => {
@@ -119,10 +113,8 @@ const scheduledDays = computed(() =>
 </script>
 
 <template>
-  <div class="habit-details-page">
+  <div class="view habit-details-page">
     <RouterLink to="/habits" class="back-link">Back to habits</RouterLink>
-
-    <LoadingOverlay :show="isTogglingPause" label="Saving…" />
 
     <ModalComponent
       v-model:open="showDeleteConfirm"
@@ -176,7 +168,7 @@ const scheduledDays = computed(() =>
         </div>
       </div>
 
-      <div>
+      <div class="history-panel">
         <div class="history-header">
           <button
             type="button"
@@ -228,21 +220,27 @@ const scheduledDays = computed(() =>
             <span v-if="d.state !== 'done'" class="day-number">{{ d.dayNumber }}</span>
           </button>
         </div>
+
+        <div class="legend-row text-caption">
+          <span class="legend-item"><span class="legend-key done" aria-hidden="true" /> Done</span>
+          <span class="legend-item"><span class="legend-key missed" aria-hidden="true" /> Missed</span>
+          <span class="legend-item"><span class="legend-key off" aria-hidden="true" /> Not scheduled</span>
+        </div>
       </div>
 
       <div class="btn-row">
-        <button
-          type="button"
-          class="btn ghost"
-          :disabled="isTogglingPause"
-          @click="onTogglePause"
-        >
+        <button type="button" class="btn ghost" @click="onTogglePause">
+          <Icon :icon="habit.paused ? 'lucide:play' : 'lucide:pause'" aria-hidden="true" />
           {{ habit.paused ? 'Resume' : 'Pause' }}
         </button>
-        <button type="button" class="btn ghost" @click="router.push(`${habit.id}/edit`)">
+        <RouterLink :to="`/habits/${habit.id}/edit`" class="btn ghost">
+          <Icon icon="lucide:pencil" aria-hidden="true" />
           Edit
+        </RouterLink>
+        <button type="button" class="btn danger" @click="onDelete">
+          <Icon icon="lucide:trash-2" aria-hidden="true" />
+          Delete
         </button>
-        <button type="button" class="btn danger" @click="onDelete">Delete</button>
       </div>
     </template>
 
@@ -254,21 +252,29 @@ const scheduledDays = computed(() =>
 .habit-details-page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  max-width: 420px;
+  gap: var(--space-5);
 }
 
 .created-on {
   display: block;
-  margin-top: 4px;
+  margin-top: var(--space-1);
+}
+
+/* The calendar and its controls read as one unit, not three stacked widgets. */
+.history-panel {
+  padding: var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .history-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  margin-bottom: 8px;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .history-header .text-label {
@@ -324,6 +330,39 @@ const scheduledDays = computed(() =>
 
 .btn-row {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.legend-key {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+.legend-key.done {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.legend-key.missed {
+  background: var(--warn-soft);
+  border-color: rgba(var(--warn-rgb), 0.35);
+}
+.legend-key.off {
+  background: var(--surface-alt);
+  border-style: dashed;
 }
 </style>
