@@ -1,21 +1,21 @@
-# Sabr — Islamic Habit Tracker
+# WirdStack — Islamic Habit Tracker
 
 > _"The most beloved deeds to Allah are those done consistently, even if small."_ — Prophet Muhammad ﷺ (Sahih al-Bukhari)
 
-**Sabr** (صبر — patience, perseverance) is a habit-tracking app that helps Muslims build consistent Islamic practices using proven habit-formation science, not just a checklist. It's built as a portfolio project for Phase 2 of a Vue 3 learning roadmap — the goal is to demonstrate real state management, routing, and composable architecture, not just CRUD.
+**WirdStack** is a habit-tracking app that helps Muslims build consistent Islamic practices using proven habit-formation science, not just a checklist. It's built as a portfolio project for Phase 2 of a Vue 3 learning roadmap — the goal is to demonstrate real state management, routing, and composable architecture, not just CRUD.
 
-**Why this name:** Sabr is the Islamic concept most directly tied to consistency and endurance in worship — exactly what habit formation is about. Short, memorable, and immediately legible to the target audience.
+**Why this name:** a *wird* (ورد) is the classical Islamic term for a fixed devotional practice kept up daily — exactly what habit formation is about. "Stack" names the app's core mechanic: habits are stacked onto existing prayer times rather than floating on their own. Together the name is legible to the target audience and distinct from the crowded field of similarly-named Islamic habit apps.
 
 ---
 
 ## The idea
 
-Most habit trackers are generic — a checkbox and a streak counter. Sabr is built around two things:
+Most habit trackers are generic — a checkbox and a streak counter. WirdStack is built around two things:
 
 1. **The science of how habits actually form** (cue → craving → response → reward, habit stacking, the Two-Minute Rule)
 2. **The structure Islamic practice already provides** — five daily prayers are fixed, non-negotiable cues that occur every single day. That's a habit-stacking foundation most habit apps have to invent; Muslims already have it built into their day.
 
-Instead of asking "did you do X today?", Sabr asks "what will you stack after Fajr, after Dhuhr, after Maghrib?" — turning existing prayer times into anchors for new habits (Qur'an reading, dhikr, sadaqah, fasting Sunnah days, etc.).
+Instead of asking "did you do X today?", WirdStack asks "what will you stack after Fajr, after Dhuhr, after Maghrib?" — turning existing prayer times into anchors for new habits (Qur'an reading, dhikr, sadaqah, fasting Sunnah days, etc.).
 
 ---
 
@@ -27,7 +27,7 @@ Instead of asking "did you do X today?", Sabr asks "what will you stack after Fa
 
 ## Habit science → feature mapping
 
-| Principle                                                        | Source                           | How Sabr implements it                                                                                                      |
+| Principle                                                        | Source                           | How WirdStack implements it                                                                                                 |
 | ---------------------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | **Cue** — the trigger that starts the loop                       | Cue-Craving-Response-Reward loop | Prayer times act as fixed cues; user picks which prayer a habit is "stacked" after                                          |
 | **Habit stacking** — "After [current habit], I will [new habit]" | Habit stacking formula           | Every habit is created as "After [Prayer], I will [action]" — not a floating to-do                                          |

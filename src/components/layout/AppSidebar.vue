@@ -38,7 +38,7 @@ function isNavActive(to: string) {
   <aside class="sidebar">
     <RouterLink to="/" class="brand">
       <span class="brand-mark" aria-hidden="true" v-html="logoSvg" />
-      Sabr
+      WirdStack
     </RouterLink>
 
     <nav class="nav" aria-label="Main">
@@ -68,7 +68,7 @@ function isNavActive(to: string) {
   <header class="topbar">
     <RouterLink to="/" class="brand">
       <span class="brand-mark" aria-hidden="true" v-html="logoSvg" />
-      Sabr
+      WirdStack
     </RouterLink>
     <ThemeToggle />
   </header>

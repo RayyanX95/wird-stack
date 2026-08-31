@@ -77,14 +77,14 @@ const FEATURES = [
     <header class="landing-nav">
       <RouterLink to="/" class="brand">
         <span class="brand-dot" aria-hidden="true" />
-        Sabr
+        WirdStack
       </RouterLink>
       <nav class="landing-nav-links">
         <a href="#how" class="nav-link">How it works</a>
         <a href="#features" class="nav-link">Features</a>
         <ThemeToggle />
         <RouterLink to="/today" class="btn primary">
-          {{ isReturning ? 'Open Sabr' : 'Start free' }}
+          {{ isReturning ? 'Open WirdStack' : 'Start free' }}
         </RouterLink>
       </nav>
     </header>
@@ -105,7 +105,7 @@ const FEATURES = [
 
         <p class="hero-lede rise text-body" style="--i: 2">
           The Prophet ﷺ said the deeds most beloved to Allah are those done consistently, even if
-          they are few. Sabr attaches one small act to each prayer you already pray — so the habit
+          they are few. WirdStack attaches one small act to each prayer you already pray — so the habit
           has somewhere to live.
         </p>
 
@@ -210,13 +210,13 @@ const FEATURES = [
         Pick a prayer, pick something small, and let tomorrow take care of itself.
       </p>
       <RouterLink to="/today" class="btn primary lg">
-        Open Sabr
+        Open WirdStack
         <Icon icon="lucide:arrow-right" aria-hidden="true" />
       </RouterLink>
     </section>
 
     <footer class="landing-footer">
-      <span class="text-caption">Sabr — صبر · patience, and the steadiness that comes with it.</span>
+      <span class="text-caption">WirdStack — a wird (ورد) is a devotional practice kept up daily; this app helps you stack one onto every prayer.</span>
     </footer>
   </div>
 </template>

@@ -1,4 +1,4 @@
-# Sabr — Islamic Habit Tracker
+# WirdStack — Islamic Habit Tracker
 
 A habit tracker that anchors new habits to the five daily prayers ("After Fajr, I will read one verse"), instead of a generic checklist. See [BUSINESS.md](./BUSINESS.md) for the full product idea. Built with Vue 3 + Vite.
 

@@ -1,6 +1,6 @@
 {
-  "name": "Sabr — Islamic habit tracker",
-  "short_name": "Sabr",
+  "name": "WirdStack — Islamic habit tracker",
+  "short_name": "WirdStack",
   "description": "Anchor one small act to each prayer you already pray.",
   "start_url": "/today",
   "scope": "/",

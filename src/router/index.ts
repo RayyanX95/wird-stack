@@ -23,7 +23,7 @@ const routes = [
     path: '/',
     name: 'landing',
     component: LandingView,
-    meta: { layout: 'bare', title: 'Sabr — small acts, kept up daily' },
+    meta: { layout: 'bare', title: 'WirdStack — small acts, kept up daily' },
   },
   {
     path: '/today',
@@ -82,7 +82,8 @@ const router = createRouter({
 // The tab title is the only "you are here" cue for someone with a dozen tabs open.
 router.afterEach((to) => {
   const title = to.meta.title as string | undefined;
-  document.title = to.name === 'landing' ? (title ?? 'Sabr') : `${title ?? 'Sabr'} · Sabr`;
+  document.title =
+    to.name === 'landing' ? (title ?? 'WirdStack') : `${title ?? 'WirdStack'} · WirdStack`;
 });
 
 export default router;

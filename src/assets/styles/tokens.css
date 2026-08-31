@@ -1,5 +1,5 @@
 /**
- * Sabr design tokens.
+ * WirdStack design tokens.
  *
  * Every value the UI is allowed to use lives here. Components reference
  * tokens, never raw hex/px — that's what keeps light and dark in sync and
@@ -98,7 +98,7 @@
 
   /* ---------- Type ---------- */
 
-  /* Display face — page/section headings, the app wordmark ("Sabr"). Used sparingly, never for body copy. */
+  /* Display face — page/section headings, the app wordmark ("WirdStack"). Used sparingly, never for body copy. */
   --font-display: 'Fraunces', Georgia, serif;
   /* Body/UI face — everything else: buttons, form fields, list text, running copy. */
   --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;

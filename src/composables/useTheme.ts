@@ -14,7 +14,7 @@ import { computed, ref } from 'vue';
  */
 export type ThemePreference = 'light' | 'dark' | 'system';
 
-const STORAGE_KEY = 'sabr-theme';
+const STORAGE_KEY = 'wirdstack-theme';
 const ORDER: ThemePreference[] = ['system', 'light', 'dark'];
 
 function readStored(): ThemePreference {

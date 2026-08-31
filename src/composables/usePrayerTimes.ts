@@ -6,7 +6,7 @@ import { toIso } from '@/utils';
 /**
  * Real prayer times for the user's actual location.
  *
- * The whole premise of Sabr is stacking a habit onto a prayer, so the times
+ * The whole premise of WirdStack is stacking a habit onto a prayer, so the times
  * can't be a hardcoded table — they move by tens of minutes across a month and
  * by hours across latitudes. Times come from the Aladhan API, keyed on
  * coordinates the user grants once.
@@ -35,9 +35,9 @@ export const CALCULATION_METHODS = [
 /** Used only when we have no coordinates at all. Labelled as such in the UI — never passed off as the user's location. */
 const FALLBACK = { latitude: 21.4225, longitude: 39.8262, label: 'Makkah' };
 
-const COORDS_KEY = 'sabr-coords';
-const METHOD_KEY = 'sabr-calc-method';
-const TIMES_KEY = 'sabr-times-cache';
+const COORDS_KEY = 'wirdstack-coords';
+const METHOD_KEY = 'wirdstack-calc-method';
+const TIMES_KEY = 'wirdstack-times-cache';
 
 /** Free, no-key, CORS-enabled reverse geocoder — good enough for a city name. */
 const GEOCODE_API = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
