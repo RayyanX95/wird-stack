@@ -41,8 +41,13 @@ export function initAnalytics() {
 
   if (document.querySelector(`script[src="${BEACON_SRC}"]`)) return;
 
+  // Matches Cloudflare's own snippet exactly: beacon.min.js is shipped as an
+  // ES module, and `type="module"` is what Cloudflare's install instructions
+  // specify — not `defer`, which was here before and never actually asserted
+  // module type, so a classic-script parse of module syntax could silently
+  // fail depending on the browser.
   const script = document.createElement('script');
-  script.defer = true;
+  script.type = 'module';
   script.src = BEACON_SRC;
   script.setAttribute('data-cf-beacon', JSON.stringify({ token }));
   document.head.appendChild(script);
