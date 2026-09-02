@@ -37,3 +37,6 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# Cloudflare Workers local dev state (miniflare caches, temp bundles)
+.wrangler
