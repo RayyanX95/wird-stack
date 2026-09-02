@@ -1,0 +1,22 @@
+{
+  // This is a Cloudflare Workers Static Assets deployment (the platform
+  // Cloudflare Pages now runs on internally — see the /workers/scripts/...
+  // API path in deploy logs), not classic Pages.
+  //
+  // `not_found_handling: "single-page-application"` is Cloudflare's
+  // purpose-built SPA fallback for this system: any request that doesn't
+  // match a real file in `dist/` serves `index.html` instead, so a hard
+  // reload on e.g. /today resolves through vue-router client-side rather than
+  // 404ing. This replaces a `public/_redirects` catch-all rule, which hit a
+  // parser bug in this deploy pipeline (a `/* -> /index.html 200` rule was
+  // rejected as an "infinite loop" by Cloudflare's own URL-normalization
+  // step, and the documented `!` force-flag workaround was rejected by a
+  // separate status-code parser here) — this option exists specifically so
+  // that fight isn't necessary.
+  "name": "wird-stack",
+  "compatibility_date": "2026-09-02",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+  },
+}
