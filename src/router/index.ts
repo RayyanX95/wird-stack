@@ -1,5 +1,7 @@
+import { watch } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import LandingView from '@/views/LandingView.vue';
+import i18n from '@/i18n';
 
 /**
  * Only the landing page is bundled eagerly — it is the entry point, so it must
@@ -23,19 +25,19 @@ const routes = [
     path: '/',
     name: 'landing',
     component: LandingView,
-    meta: { layout: 'bare', title: 'WirdStack — small acts, kept up daily' },
+    meta: { layout: 'bare', titleKey: 'routes.landing' },
   },
   {
     path: '/today',
     name: 'today',
     component: HomeView,
-    meta: { title: 'Today' },
+    meta: { titleKey: 'routes.today' },
   },
   {
     path: '/habits',
     name: 'habits',
     component: HabitsView,
-    meta: { title: 'Habits' },
+    meta: { titleKey: 'routes.habits' },
   },
   // Declared before the `:id` route so the literal segment is unambiguous to
   // read here, even though the router would rank it higher regardless.
@@ -43,27 +45,27 @@ const routes = [
     path: '/habits/new',
     name: 'new-habit',
     component: NewHabitView,
-    meta: { title: 'New habit' },
+    meta: { titleKey: 'routes.newHabit' },
   },
   {
     path: '/habits/:id',
     name: 'habit-details',
     component: HabitDetails,
-    meta: { title: 'Habit' },
+    meta: { titleKey: 'routes.habitDetails' },
   },
   {
     path: '/habits/:id/edit',
     name: 'habit-edit',
     component: NewHabitView,
-    meta: { title: 'Edit habit' },
+    meta: { titleKey: 'routes.editHabit' },
   },
   {
     path: '/stats',
     name: 'stats',
     component: StatsView,
-    meta: { title: 'Stats' },
+    meta: { titleKey: 'routes.stats' },
   },
-  { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundView, meta: { title: 'Not found' } },
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundView, meta: { titleKey: 'routes.notFound' } },
 ];
 
 const router = createRouter({
@@ -79,11 +81,24 @@ const router = createRouter({
   },
 });
 
-// The tab title is the only "you are here" cue for someone with a dozen tabs open.
-router.afterEach((to) => {
-  const title = to.meta.title as string | undefined;
-  document.title =
-    to.name === 'landing' ? (title ?? 'WirdStack') : `${title ?? 'WirdStack'} · WirdStack`;
-});
+/**
+ * The tab title is the only "you are here" cue for someone with a dozen tabs
+ * open. Routes carry a `titleKey`, not a title, so this resolves through i18n
+ * at navigation time.
+ *
+ * Exported and also called from a locale watcher: `afterEach` only fires on
+ * navigation, so without that watch, switching language would leave the tab
+ * showing the previous language's title until the user navigated somewhere.
+ */
+export function applyDocumentTitle(route = router.currentRoute.value) {
+  const key = route.meta.titleKey as string | undefined;
+  const brand = i18n.global.t('brand');
+  const title = key ? i18n.global.t(key) : brand;
+  document.title = route.name === 'landing' ? title : `${title} · ${brand}`;
+}
+
+router.afterEach((to) => applyDocumentTitle(to));
+
+watch(() => i18n.global.locale.value, () => applyDocumentTitle());
 
 export default router;

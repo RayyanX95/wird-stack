@@ -10,18 +10,22 @@
 import logoRaw from '@/assets/logo.svg?raw';
 import { Icon } from '@iconify/vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import ThemeToggle from '../ThemeToggle.vue';
+import LocaleToggle from '../LocaleToggle.vue';
 
 const logoSvg = logoRaw.replace(/<!--[\s\S]*?-->/g, '').trim();
 
 const route = useRoute();
+const { t } = useI18n();
 
 // One nav definition renders twice — as the desktop rail and as the mobile tab
-// bar — so the two can't fall out of sync.
+// bar — so the two can't fall out of sync. `labelKey` rather than a literal so
+// the same definition serves both locales.
 const NAV = [
-  { to: '/today', label: 'Today', icon: 'lucide:sun' },
-  { to: '/habits', label: 'Habits', icon: 'lucide:list-checks' },
-  { to: '/stats', label: 'Stats', icon: 'lucide:bar-chart-3' },
+  { to: '/today', labelKey: 'nav.today', icon: 'lucide:sun' },
+  { to: '/habits', labelKey: 'nav.habits', icon: 'lucide:list-checks' },
+  { to: '/stats', labelKey: 'nav.stats', icon: 'lucide:bar-chart-3' },
 ];
 
 // /habits/new, /habits/:id, and /habits/:id/edit are their own top-level route
@@ -41,7 +45,7 @@ function isNavActive(to: string) {
       WirdStack
     </RouterLink>
 
-    <nav class="nav" aria-label="Main">
+    <nav class="nav" :aria-label="t('nav.main')">
       <RouterLink
         v-for="item in NAV"
         :key="item.to"
@@ -50,16 +54,17 @@ function isNavActive(to: string) {
         :class="{ 'router-link-active': isNavActive(item.to) }"
       >
         <Icon :icon="item.icon" class="nav-icon" aria-hidden="true" />
-        {{ item.label }}
+        {{ t(item.labelKey) }}
       </RouterLink>
     </nav>
 
     <div class="rail-foot">
       <RouterLink to="/habits/new" class="btn primary new-btn">
         <Icon icon="lucide:plus" aria-hidden="true" />
-        New habit
+        {{ t('nav.newHabit') }}
       </RouterLink>
       <ThemeToggle />
+      <LocaleToggle />
     </div>
   </aside>
 
@@ -70,10 +75,13 @@ function isNavActive(to: string) {
       <span class="brand-mark" aria-hidden="true" v-html="logoSvg" />
       WirdStack
     </RouterLink>
-    <ThemeToggle />
+    <div class="topbar-actions">
+      <ThemeToggle />
+      <LocaleToggle />
+    </div>
   </header>
 
-  <nav class="tabbar" aria-label="Main">
+  <nav class="tabbar" :aria-label="t('nav.main')">
     <RouterLink
       v-for="item in NAV"
       :key="item.to"
@@ -82,11 +90,11 @@ function isNavActive(to: string) {
       :class="{ 'router-link-active': isNavActive(item.to) }"
     >
       <Icon :icon="item.icon" class="tab-icon" aria-hidden="true" />
-      <span>{{ item.label }}</span>
+      <span>{{ t(item.labelKey) }}</span>
     </RouterLink>
     <RouterLink to="/habits/new" class="tab-item tab-new">
       <Icon icon="lucide:plus" class="tab-icon" aria-hidden="true" />
-      <span>New</span>
+      <span>{{ t('nav.new') }}</span>
     </RouterLink>
   </nav>
 </template>
@@ -99,12 +107,19 @@ function isNavActive(to: string) {
   flex: 0 0 var(--sidebar-w);
   height: 100dvh;
   background: linear-gradient(180deg, var(--surface-alt), var(--bg));
-  border-right: 1px solid var(--border);
+  /* Logical, so the rail's edge lands against the content column in both
+     directions rather than on the outside of the window in Arabic. */
+  border-inline-end: 1px solid var(--border);
   box-shadow: 6px 0 24px -20px rgba(var(--text-rgb), 0.5);
   padding: var(--space-6) var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
+}
+
+/* box-shadow has no logical form — the offset has to be mirrored by hand. */
+:global([dir='rtl']) .sidebar {
+  box-shadow: -6px 0 24px -20px rgba(var(--text-rgb), 0.5);
 }
 
 .brand {
@@ -188,20 +203,30 @@ function isNavActive(to: string) {
   color: var(--accent);
 }
 
+/* The active marker sits in the rail's own padding, on whichever side the
+   text starts — logical inset and logical corner radii, so it reads as a tab
+   growing out of the edge in both directions. */
 .nav-item.router-link-active::before {
   content: '';
   position: absolute;
-  left: calc(-1 * var(--space-4));
+  inset-inline-start: calc(-1 * var(--space-4));
   top: 50%;
   transform: translateY(-50%);
   width: 3px;
   height: 18px;
-  border-radius: 0 3px 3px 0;
+  border-start-end-radius: 3px;
+  border-end-end-radius: 3px;
   background: var(--accent);
 }
 
 .rail-foot {
   margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.topbar-actions {
   display: flex;
   align-items: center;
   gap: var(--space-2);

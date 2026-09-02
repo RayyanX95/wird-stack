@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
+import { useI18n } from 'vue-i18n';
 import type { HabitItem, Prayer } from '@/types';
+import { useLocale } from '@/composables';
 import HabitRow from './HabitRow.vue';
+
+const { t } = useI18n();
+const { isRtlLocale } = useLocale();
 
 /**
  * The habits stacked onto one prayer, as a single block.
@@ -31,17 +36,23 @@ const emit = defineEmits<{ toggle: [id: string] }>();
   <section
     class="prayer-block"
     :class="{ next: isNext, passed: isPassed && !isNext }"
-    :aria-label="`Habits after ${prayer}`"
+    :aria-label="t('today.habitsAfter', { prayer: t(`prayers.${prayer}`) })"
   >
     <div class="prayer-block-head">
       <h2 class="prayer-name">
-        <Icon v-if="isNext" icon="lucide:arrow-right" aria-hidden="true" />
-        {{ prayer }}
-        <span v-if="isNext" class="next-tag">Next up</span>
+        <!-- The arrow points along the reading direction, so it has to mirror
+             with the locale rather than always pointing right. -->
+        <Icon
+          v-if="isNext"
+          :icon="isRtlLocale ? 'lucide:arrow-left' : 'lucide:arrow-right'"
+          aria-hidden="true"
+        />
+        {{ t(`prayers.${prayer}`) }}
+        <span v-if="isNext" class="next-tag">{{ t('today.nextUp') }}</span>
       </h2>
       <span class="prayer-time">
         {{ time }}
-        <template v-if="isNext && countdown"> · in {{ countdown }}</template>
+        <template v-if="isNext && countdown"> · {{ t('today.inTime', { time: countdown }) }}</template>
       </span>
     </div>
 

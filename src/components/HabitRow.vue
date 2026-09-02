@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Icon } from '@iconify/vue';
+import { useI18n } from 'vue-i18n';
 import type { HabitItem } from '@/types';
+import { isolate } from '@/utils';
+
+const { t } = useI18n();
 
 /**
  * One habit as a row. Used by both Today and the Habits list so the two can't
@@ -37,7 +41,13 @@ const props = withDefaults(
 const emit = defineEmits<{ toggle: [id: string] }>();
 
 const metaLine = computed(
-  () => props.meta ?? `After ${props.habit.anchorPrayer} · ${props.habit.minimalVersion}`,
+  () =>
+    props.meta ??
+    t('habits.afterPrayer', {
+      prayer: t(`prayers.${props.habit.anchorPrayer}`),
+      // User text: isolated so "1 verse" doesn't render as "verse 1" in Arabic.
+      minimal: isolate(props.habit.minimalVersion),
+    }),
 );
 
 /** Not actionable today — for either reason. */
@@ -57,17 +67,16 @@ const inert = computed(() => props.habit.paused || !props.scheduledToday);
 const showMarker = computed(() => !props.habit.paused && !props.scheduledToday);
 
 const checkLabel = computed(() => {
-  if (props.habit.paused) return `${props.habit.title} — paused; resume it to check it off`;
-  if (!props.scheduledToday) return `${props.habit.title} — not scheduled today`;
-  return props.completed
-    ? `Mark ${props.habit.title} as not done`
-    : `Mark ${props.habit.title} as done`;
+  const title = props.habit.title;
+  if (props.habit.paused) return t('habits.pausedRowLabel', { title });
+  if (!props.scheduledToday) return t('habits.notScheduledRowLabel', { title });
+  return props.completed ? t('habits.markAsNotDone', { title }) : t('habits.markAsDone', { title });
 });
 
 /** Native tooltip explaining why the control is dead, since a dashed ring alone doesn't say. */
 const checkTitle = computed(() => {
-  if (props.habit.paused) return 'Resume this habit to check it off';
-  if (!props.scheduledToday) return 'Not scheduled today';
+  if (props.habit.paused) return t('habits.resumeToCheck');
+  if (!props.scheduledToday) return t('habits.notScheduledToday');
   return undefined;
 });
 </script>
@@ -100,11 +109,14 @@ const checkTitle = computed(() => {
       <Icon v-if="completed" icon="lucide:check" aria-hidden="true" />
     </button>
 
+    <!-- <bdi> on both lines: each holds either user text of unknown direction
+         or a sentence containing some, and bdi picks the direction from the
+         content while isolating it from the row around it. -->
     <div class="habit-body">
       <RouterLink :to="`/habits/${habit.id}`" class="habit-title stretched">
-        {{ habit.title }}
+        <bdi>{{ habit.title }}</bdi>
       </RouterLink>
-      <div class="habit-meta">{{ metaLine }}</div>
+      <div class="habit-meta"><bdi>{{ metaLine }}</bdi></div>
     </div>
 
     <slot name="trailing">
@@ -114,7 +126,7 @@ const checkTitle = computed(() => {
         class="habit-action"
         @click="emit('toggle', habit.id)"
       >
-        Mark done
+        {{ t('habits.markDone') }}
       </button>
     </slot>
   </div>

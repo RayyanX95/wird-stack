@@ -2,6 +2,13 @@ import { computed, ref } from 'vue';
 import type { Prayer } from '@/types';
 import { PRAYERS } from '@/types';
 import { toIso } from '@/utils';
+import i18n from '@/i18n';
+
+// The global instance rather than useI18n(): this module's state and its
+// fetch/geolocation callbacks live outside any component's setup scope. `t`
+// reads the locale ref, so computeds that call it still re-evaluate on a
+// language switch.
+const t = i18n.global.t;
 
 /**
  * Real prayer times for the user's actual location.
@@ -21,19 +28,15 @@ import { toIso } from '@/utils';
 
 const API = 'https://api.aladhan.com/v1/timings';
 
-/** Aladhan calculation-method ids. Which one is "correct" is regional, so it's the user's call. */
-export const CALCULATION_METHODS = [
-  { id: 2, label: 'ISNA — North America' },
-  { id: 3, label: 'Muslim World League' },
-  { id: 4, label: 'Umm al-Qura — Makkah' },
-  { id: 5, label: 'Egyptian General Authority' },
-  { id: 1, label: 'University of Karachi' },
-  { id: 8, label: 'Gulf Region' },
-  { id: 13, label: 'Diyanet — Turkey' },
-] as const;
+/**
+ * Aladhan calculation-method ids, in the order they're offered. Which one is
+ * "correct" is regional, so it's the user's call. Labels live in the locale
+ * files under `prayerTimes.methods.<id>`.
+ */
+export const CALCULATION_METHOD_IDS = [2, 3, 4, 5, 1, 8, 13] as const;
 
 /** Used only when we have no coordinates at all. Labelled as such in the UI — never passed off as the user's location. */
-const FALLBACK = { latitude: 21.4225, longitude: 39.8262, label: 'Makkah' };
+const FALLBACK = { latitude: 21.4225, longitude: 39.8262 };
 
 const COORDS_KEY = 'wirdstack-coords';
 const METHOD_KEY = 'wirdstack-calc-method';
@@ -144,11 +147,11 @@ async function fetchTimings(date: Date): Promise<PrayerTimes> {
     `${API}/${apiDate(date)}?latitude=${coords.value.latitude}` +
     `&longitude=${coords.value.longitude}&method=${method.value}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Prayer time service returned ${res.status}`);
+  if (!res.ok) throw new Error(t('prayerTimes.serviceError', { status: res.status }));
 
   const body = (await res.json()) as { data?: { timings?: Record<string, string> } };
   const timings = body.data?.timings;
-  if (!timings) throw new Error('Prayer time service returned an unexpected shape');
+  if (!timings) throw new Error(t('prayerTimes.unexpectedShape'));
 
   return Object.fromEntries(
     PRAYERS.map((p) => [p, parseTime(timings[p] ?? '')]),
@@ -197,14 +200,14 @@ async function load() {
     } else {
       status.value = 'error';
     }
-    error.value = e instanceof Error ? e.message : 'Could not load prayer times';
+    error.value = e instanceof Error ? e.message : t('prayerTimes.loadFailed');
   }
 }
 
 /** Asks the browser for a location. Safe to call repeatedly — a denial just leaves the fallback in place. */
 function requestLocation(): Promise<void> {
   if (!('geolocation' in navigator)) {
-    error.value = 'This browser can’t share a location.';
+    error.value = t('prayerTimes.noGeolocation');
     return load();
   }
 
@@ -224,7 +227,7 @@ function requestLocation(): Promise<void> {
       },
       () => {
         // Denied or timed out — keep whatever coordinates we already had.
-        error.value = 'Location unavailable — showing times for ' + FALLBACK.label + '.';
+        error.value = t('prayerTimes.locationUnavailable', { city: t('prayerTimes.fallbackCity') });
         void load().then(resolve);
       },
       { timeout: 8000, maximumAge: 60 * 60 * 1000 },
@@ -269,7 +272,7 @@ export function usePrayerTimes(now = ref(new Date()), options: { autoLocate?: bo
 
   const usingFallbackLocation = computed(() => source.value === 'fallback');
   const locationLabel = computed(() => {
-    if (usingFallbackLocation.value) return FALLBACK.label;
+    if (usingFallbackLocation.value) return t('prayerTimes.fallbackCity');
     if (cityLabel.value) return cityLabel.value;
     return `${coords.value.latitude.toFixed(2)}°, ${coords.value.longitude.toFixed(2)}°`;
   });
@@ -315,8 +318,9 @@ export function usePrayerTimes(now = ref(new Date()), options: { autoLocate?: bo
     if (!next) return '';
     const h = Math.floor(next.minutesAway / 60);
     const m = next.minutesAway % 60;
-    if (h === 0) return `${m}m`;
-    return m === 0 ? `${h}h` : `${h}h ${m}m`;
+    if (h === 0) return t('duration.minutes', { minutes: m });
+    if (m === 0) return t('duration.hours', { hours: h });
+    return t('duration.hoursMinutes', { hours: h, minutes: m });
   });
 
   const timeFor = (prayer: Prayer): string => times.value?.[prayer] ?? '--:--';

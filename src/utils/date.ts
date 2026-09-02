@@ -36,18 +36,37 @@ export function startOfWeek(date: Date): Date {
   return start;
 }
 
-/** Greeting keyed to the time of day — the Today view's first line. */
-export function timeOfDayGreeting(date = new Date()): string {
+/**
+ * Which greeting the time of day calls for — a key into `today.greeting.*`,
+ * not a sentence. Returning the string here would hard-code English into a
+ * date utility and leave the Arabic copy stranded in a second place.
+ */
+export type GreetingKey = 'night' | 'morning' | 'afternoon' | 'evening';
+
+export function timeOfDayGreeting(date = new Date()): GreetingKey {
   const h = date.getHours();
-  if (h < 5) return 'A blessed night';
-  if (h < 12) return 'A blessed morning';
-  if (h < 17) return 'A blessed afternoon';
-  return 'A blessed evening';
+  if (h < 5) return 'night';
+  if (h < 12) return 'morning';
+  if (h < 17) return 'afternoon';
+  return 'evening';
 }
 
-/** e.g. "Sunday, 30 August" — the everyday date, weekday first. */
-export function gregorianLabel(date = new Date()): string {
-  return new Intl.DateTimeFormat('en-GB', {
+/**
+ * The BCP-47 tag to hand Intl for a given app locale.
+ *
+ * Arabic pins `-nu-latn` because Intl otherwise renders Arabic-Indic numerals
+ * (٣٠ rather than 30). Those are correct Arabic, but every prayer time in this
+ * app comes from the API as Western digits and sits in a mono face — mixing
+ * the two numeral systems on one screen reads as a bug, not as localisation.
+ * Gulf and Levantine digital products overwhelmingly use Western digits.
+ */
+export function intlLocale(locale: string): string {
+  return locale === 'ar' ? 'ar-u-nu-latn' : 'en-GB';
+}
+
+/** e.g. "Sunday, 30 August" / "الأحد، 30 أغسطس" — the everyday date, weekday first. */
+export function gregorianLabel(date = new Date(), locale = 'en'): string {
+  return new Intl.DateTimeFormat(intlLocale(locale), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -67,9 +86,11 @@ export function gregorianLabel(date = new Date()): string {
  * set, and a browser built without it throws on the locale rather than falling
  * back. A missing Hijri line is a fine degradation; a crashed header is not.
  */
-export function hijriLabel(date = new Date()): string | null {
+export function hijriLabel(date = new Date(), locale = 'en'): string | null {
   try {
-    const parts = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
+    const calendar =
+      locale === 'ar' ? 'ar-SA-u-ca-islamic-umalqura-nu-latn' : 'en-US-u-ca-islamic-umalqura';
+    const parts = new Intl.DateTimeFormat(calendar, {
       day: 'numeric',
       month: 'long',
       year: 'numeric',

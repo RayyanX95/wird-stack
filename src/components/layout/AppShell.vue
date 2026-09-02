@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import AppSidebar from './AppSidebar.vue';
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -7,7 +10,7 @@ import AppSidebar from './AppSidebar.vue';
     <AppSidebar />
     <!-- Skip link: the sidebar/tab bar is a lot of repeated stops for a
          keyboard or screen-reader user to walk past on every route. -->
-    <a href="#content" class="skip-link">Skip to content</a>
+    <a href="#content" class="skip-link">{{ t('common.skipToContent') }}</a>
     <main id="content" class="main" tabindex="-1">
       <div class="main-inner">
         <slot />
@@ -46,7 +49,7 @@ import AppSidebar from './AppSidebar.vue';
 
 .skip-link {
   position: absolute;
-  left: var(--space-4);
+  inset-inline-start: var(--space-4);
   top: calc(-1 * var(--space-16));
   z-index: var(--z-modal);
   padding: var(--space-2) var(--space-4);

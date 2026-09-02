@@ -2,11 +2,15 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue';
+import { useI18n } from 'vue-i18n';
 import { useHabitsStore } from '@/stores/habits';
+import { useLocale } from '@/composables';
 import type { Prayer } from '@/types';
 import { PRAYERS, WEEKDAY_DISPLAY_ORDER } from '@/types';
-import { fromIso, toIso, weekDayOf } from '@/utils';
+import { fromIso, intlLocale, toIso, weekDayOf } from '@/utils';
 
+const { t } = useI18n();
+const { locale } = useLocale();
 const router = useRouter();
 const { habits, completions, currentStreak, isNewHabit, dayState } = useHabitsStore();
 
@@ -130,7 +134,7 @@ const bestStreak = computed(() =>
 );
 
 const monthLabel = computed(() =>
-  new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+  new Date().toLocaleDateString(intlLocale(locale.value), { month: 'long', year: 'numeric' }),
 );
 
 function intensityClass(ratio: number | null): string {
@@ -142,7 +146,10 @@ function intensityClass(ratio: number | null): string {
 }
 
 function shortDate(iso: string): string {
-  return fromIso(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return fromIso(iso).toLocaleDateString(intlLocale(locale.value), {
+    month: 'short',
+    day: 'numeric',
+  });
 }
 </script>
 
@@ -150,19 +157,18 @@ function shortDate(iso: string): string {
   <div class="view">
     <header class="page-header">
       <div>
-        <h1 class="text-title margin-bottom">Stats</h1>
-        <p class="text-subtitle range">{{ monthLabel }} · to date</p>
+        <h1 class="text-title margin-bottom">{{ t('stats.title') }}</h1>
+        <p class="text-subtitle range">{{ t('stats.range', { month: monthLabel }) }}</p>
       </div>
     </header>
 
     <div v-if="!hasEnoughData" class="empty-state">
       <div class="empty-icon"><Icon icon="lucide:bar-chart-3" /></div>
-      <h2 class="text-title margin-bottom">Not enough data yet</h2>
-      <p class="text-subtitle">
-        Log a few check-ins and your completion rates, weekday patterns and prayer breakdown will
-        show up here.
-      </p>
-      <button type="button" class="btn primary" @click="router.push('/today')">Go to Today</button>
+      <h2 class="text-title margin-bottom">{{ t('stats.emptyTitle') }}</h2>
+      <p class="text-subtitle">{{ t('stats.emptyBody') }}</p>
+      <button type="button" class="btn primary" @click="router.push('/today')">
+        {{ t('stats.goToToday') }}
+      </button>
     </div>
 
     <template v-else>
@@ -170,19 +176,19 @@ function shortDate(iso: string): string {
       <div class="stat-cards">
         <div class="stat-card rise" style="--i: 0">
           <div class="stat-value">{{ overallRate }}%</div>
-          <div class="stat-label">Completion rate</div>
+          <div class="stat-label">{{ t('stats.completionRate') }}</div>
         </div>
         <div class="stat-card streak rise" style="--i: 1">
           <div class="stat-value">{{ bestStreak }}</div>
-          <div class="stat-label">Best active streak</div>
+          <div class="stat-label">{{ t('stats.bestStreak') }}</div>
         </div>
         <div class="stat-card rise" style="--i: 2">
           <div class="stat-value">{{ atRiskCount }}</div>
-          <div class="stat-label">At risk</div>
+          <div class="stat-label">{{ t('stats.atRisk') }}</div>
         </div>
         <div class="stat-card rise" style="--i: 3">
           <div class="stat-value">{{ activeHabits.length }}</div>
-          <div class="stat-label">Active habits</div>
+          <div class="stat-label">{{ t('stats.activeHabits') }}</div>
         </div>
       </div>
 
@@ -191,8 +197,8 @@ function shortDate(iso: string): string {
            perfect week drew identically. -->
       <section class="panel rise" style="--i: 4">
         <div class="panel-head">
-          <h2 class="text-label">Completion by weekday</h2>
-          <span class="text-caption">% of scheduled habits done</span>
+          <h2 class="text-label">{{ t('stats.byWeekday') }}</h2>
+          <span class="text-caption">{{ t('stats.byWeekdayCaption') }}</span>
         </div>
 
         <div class="chart">
@@ -209,7 +215,7 @@ function shortDate(iso: string): string {
                 <span /><span /><span class="base" />
               </div>
 
-              <div class="bars" role="img" aria-label="Completion rate by weekday">
+              <div class="bars" role="img" :aria-label="t('stats.byWeekdayChartLabel')">
                 <div
                   v-for="d in weeklyRates"
                   :key="d.label"
@@ -232,7 +238,9 @@ function shortDate(iso: string): string {
             </div>
 
             <div class="bar-labels" aria-hidden="true">
-              <span v-for="d in weeklyRates" :key="d.label" class="text-caption">{{ d.label }}</span>
+              <span v-for="d in weeklyRates" :key="d.label" class="text-caption">
+                {{ t(`weekdays.short.${d.label}`) }}
+              </span>
             </div>
           </div>
         </div>
@@ -240,8 +248,12 @@ function shortDate(iso: string): string {
         <!-- The chart is decorative to a screen reader; this is the actual data. -->
         <ul class="sr-only">
           <li v-for="d in weeklyRates" :key="d.label">
-            {{ d.label }}:
-            {{ d.rate === null ? 'nothing scheduled' : `${d.rate}% of ${d.scheduled} scheduled` }}
+            {{ t(`weekdays.long.${d.label}`) }}:
+            {{
+              d.rate === null
+                ? t('stats.nothingScheduled')
+                : t('stats.weekdayDetail', { rate: d.rate, count: d.scheduled })
+            }}
           </li>
         </ul>
       </section>
@@ -249,13 +261,13 @@ function shortDate(iso: string): string {
       <!-- Last 30 days -->
       <section class="panel rise" style="--i: 5">
         <div class="panel-head">
-          <h2 class="text-label">Last 30 days</h2>
+          <h2 class="text-label">{{ t('stats.last30') }}</h2>
           <div class="legend text-caption" aria-hidden="true">
-            <span>Less</span>
+            <span>{{ t('stats.less') }}</span>
             <span class="swatch l0" /><span class="swatch l1" /><span class="swatch l2" /><span
               class="swatch l3"
             />
-            <span>More</span>
+            <span>{{ t('stats.more') }}</span>
           </div>
         </div>
 
@@ -267,8 +279,12 @@ function shortDate(iso: string): string {
             :class="intensityClass(day.ratio)"
             :title="
               day.ratio === null
-                ? `${shortDate(day.date)} — nothing scheduled`
-                : `${shortDate(day.date)} — ${day.done} of ${day.total} done`
+                ? t('stats.dayNothingScheduled', { date: shortDate(day.date) })
+                : t('stats.dayDone', {
+                    date: shortDate(day.date),
+                    done: day.done,
+                    total: day.total,
+                  })
             "
           />
         </div>
@@ -278,15 +294,19 @@ function shortDate(iso: string): string {
            what tells you where to actually put the effort. -->
       <section v-if="showPrayerComparison" class="panel rise" style="--i: 6">
         <div class="panel-head">
-          <h2 class="text-label">By anchor prayer</h2>
+          <h2 class="text-label">{{ t('stats.byPrayer') }}</h2>
         </div>
 
         <ul class="prayer-list">
           <li v-for="p in prayerRates" :key="p.prayer" class="prayer-row">
             <span class="prayer-label">
-              {{ p.prayer }}
-              <span v-if="p.prayer === bestPrayer" class="pill done">Strongest</span>
-              <span v-else-if="p.prayer === worstPrayer" class="pill risk">Weakest</span>
+              {{ t(`prayers.${p.prayer}`) }}
+              <span v-if="p.prayer === bestPrayer" class="pill done">
+                {{ t('stats.strongest') }}
+              </span>
+              <span v-else-if="p.prayer === worstPrayer" class="pill risk">
+                {{ t('stats.weakest') }}
+              </span>
             </span>
             <div class="prayer-track">
               <div
@@ -301,12 +321,18 @@ function shortDate(iso: string): string {
 
         <p class="text-caption panel-note">
           <Icon icon="lucide:lightbulb" aria-hidden="true" />
-          {{ worstPrayer }} is where habits slip most — try shrinking that one until it is trivial.
+          {{ t('stats.weakestNote', { prayer: t(`prayers.${worstPrayer}`) }) }}
         </p>
       </section>
 
+      <!-- Singular gets its own key rather than an inline 's': Arabic's
+           singular is a different sentence, not the same one minus a suffix. -->
       <p v-if="pausedCount > 0" class="text-caption paused-note">
-        {{ pausedCount }} paused habit{{ pausedCount > 1 ? 's' : '' }} excluded from these stats.
+        {{
+          pausedCount === 1
+            ? t('stats.pausedExcludedOne')
+            : t('stats.pausedExcluded', { count: pausedCount })
+        }}
       </p>
     </template>
   </div>
@@ -361,7 +387,8 @@ function shortDate(iso: string): string {
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
   color: var(--text-faint);
-  text-align: right;
+  /* Ticks hug the plot, which is on the other side of the axis in Arabic. */
+  text-align: end;
 }
 
 .chart-body {
@@ -581,7 +608,7 @@ function shortDate(iso: string): string {
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--text-muted);
-  text-align: right;
+  text-align: end;
 }
 
 .paused-note {

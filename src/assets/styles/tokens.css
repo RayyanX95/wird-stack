@@ -98,12 +98,51 @@
 
   /* ---------- Type ---------- */
 
+  /*
+   * Each stack carries an Arabic face after its Latin one.
+   *
+   * This is a fallback chain, not a conditional: a browser uses the first font
+   * in the list that actually has the glyph, so Latin text renders in
+   * Fraunces/Jakarta/Plex Mono and Arabic falls through to the Arabic face —
+   * in either locale, with no dir-specific rules and no flash. It also fixes
+   * mixed strings (an English habit title inside Arabic UI copy), which a
+   * dir-conditional stack would get wrong in both directions.
+   *
+   * Without this, Arabic renders through the browser's last-resort fallback:
+   * legible, but with mispositioned diacritics — the detached tanween on
+   * "أعمالٌ" is the tell — and broken letter joining in the mono stack.
+   *
+   * The three Arabic faces are chosen by script tradition, not by matching
+   * their Latin partner's shape:
+   *
+   * - **Reem Kufi** for display. Kufic is the script of mosque inscription and
+   *   Qur'anic manuscript headings, and it comes from the same geometric
+   *   tradition as the eight-pointed star field this app draws behind its own
+   *   hero — set together they read as one visual language. It is also simply
+   *   the right *kind* of face for the job: a naskh text face like Amiri goes
+   *   thin and literary at headline size, where Kufi stays architectural.
+   * - **Almarai** for body and UI. A Gulf-designed face built for screens;
+   *   warmer and more natively Arabic than an internationalised corporate
+   *   sans, while staying fully legible at 13px.
+   * - **Amiri** for scripture only — see --font-naskh below.
+   */
+
   /* Display face — page/section headings, the app wordmark ("WirdStack"). Used sparingly, never for body copy. */
-  --font-display: 'Fraunces', Georgia, serif;
+  --font-display: 'Fraunces', 'Reem Kufi', Georgia, serif;
   /* Body/UI face — everything else: buttons, form fields, list text, running copy. */
-  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Plus Jakarta Sans', 'Almarai', system-ui, -apple-system, sans-serif;
   /* Data face — anything tabular/numeric: prayer times, streak counts, percentages, dates. */
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-mono: 'IBM Plex Mono', 'Almarai', ui-monospace, monospace;
+  /*
+   * Scripture face — Qur'an and hadith, nothing else.
+   *
+   * Amiri is a revival of the Bulaq/Amiria Press naskh, the type Cairo set
+   * religious texts in for a century, so it is the typographic register a
+   * reader expects a hadith to arrive in. Using it *only* here is the point:
+   * quoted revelation should look different from app chrome, the same way it
+   * would on a printed page.
+   */
+  --font-naskh: 'Amiri', 'Reem Kufi', Georgia, serif;
 
   /* Type scale — the only font sizes in the app. Anything not on this ladder is a bug. */
   --text-2xs: 11px;

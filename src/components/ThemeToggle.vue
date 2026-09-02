@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Icon } from '@iconify/vue';
+import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables';
 
+const { t } = useI18n();
 const { preference, resolved, cycleTheme } = useTheme();
 
 // Three states, one button: the icon shows what you'd *get*, the label says
@@ -14,9 +16,12 @@ const ICONS = {
 } as const;
 
 const icon = computed(() => ICONS[preference.value]);
-const label = computed(
-  () =>
-    `Theme: ${preference.value}${preference.value === 'system' ? ` (${resolved.value})` : ''}. Click to change.`,
+// "System" names the theme it resolved to as well, so the label never just
+// says "system" while the screen is plainly dark.
+const label = computed(() =>
+  preference.value === 'system'
+    ? t('theme.labelSystem', { resolved: t(`theme.${resolved.value}`) })
+    : t('theme.label', { preference: t(`theme.${preference.value}`) }),
 );
 </script>
 

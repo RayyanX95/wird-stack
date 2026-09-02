@@ -26,12 +26,14 @@
     <meta name="twitter:card" content="summary_large_image">
 
     <!--
-      Theme, applied before first paint.
+      Theme and language, applied before first paint.
 
       This has to run synchronously in <head>, ahead of the stylesheet and the
       app bundle: if it waited for Vue to mount, a user who chose dark would
       get a full frame of the light palette first — the white flash that makes
-      dark modes feel bolted on. It reads the same key useTheme.ts writes.
+      dark modes feel bolted on — and an Arabic reader would get a full frame
+      of left-to-right layout before it flipped. It reads the same keys
+      useTheme.ts and useLocale.ts write.
     -->
     <script>
       (function () {
@@ -51,13 +53,27 @@
         } catch (e) {
           /* Storage blocked — the CSS media query still gives a correct theme. */
         }
+
+        try {
+          var saved = localStorage.getItem('wirdstack-locale');
+          var lang =
+            saved === 'ar' || saved === 'en'
+              ? saved
+              : (navigator.language || 'en').split('-')[0] === 'ar'
+                ? 'ar'
+                : 'en';
+          document.documentElement.setAttribute('lang', lang);
+          document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+        } catch (e) {
+          /* Storage blocked — main.ts applies the detected locale on mount. */
+        }
       })();
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@400;500;600;700&family=Almarai:wght@300;400;700;800&display=swap"
       rel="stylesheet"
     >
   </head>

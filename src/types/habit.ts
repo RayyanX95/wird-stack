@@ -26,15 +26,9 @@ export const WEEKDAY_DISPLAY_ORDER: WeekDay[] = [
   'Sun',
 ];
 
-export const WEEKDAY_SHORT_LABELS: Record<WeekDay, string> = {
-  Mon: 'M',
-  Tue: 'T',
-  Wed: 'W',
-  Thu: 'T',
-  Fri: 'F',
-  Sat: 'S',
-  Sun: 'S',
-};
+// Weekday labels (both long and one-glyph forms) live in the locale files
+// under `weekdays.*`, keyed by the same values as WeekDay — a label is
+// language, and this module is data.
 
 export interface AddHabitPayload {
   title: string;

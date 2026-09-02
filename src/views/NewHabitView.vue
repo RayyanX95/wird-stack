@@ -2,15 +2,17 @@
 import { computed, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue';
+import { useI18n } from 'vue-i18n';
 import type { Prayer, WeekDay } from '@/types';
-import { PRAYERS, WEEKDAY_DISPLAY_ORDER, WEEKDAY_SHORT_LABELS } from '@/types';
+import { PRAYERS, WEEKDAY_DISPLAY_ORDER } from '@/types';
 import { habitSchema, type HabitFormValues } from './schema';
 import { useHabitsStore } from '@/stores/habits';
 import { ModalComponent } from '@/components';
 
+const { t } = useI18n();
 const router = useRouter();
 
-const DAYS = WEEKDAY_DISPLAY_ORDER.map((value) => ({ value, label: WEEKDAY_SHORT_LABELS[value] }));
+const DAYS = WEEKDAY_DISPLAY_ORDER;
 
 const route = useRoute();
 const { onAddHabit, updateHabit, getHabitById } = useHabitsStore();
@@ -26,7 +28,7 @@ const notFound = computed(() => hasIdParam.value && !habit.value);
 const title = ref(habit.value?.title ?? '');
 const anchorPrayer = ref<Prayer>(habit.value?.anchorPrayer ?? 'Fajr');
 const minimalVersion = ref(habit.value?.minimalVersion ?? '');
-const selectedDays = ref<WeekDay[]>(habit.value?.days ?? DAYS.map((d) => d.value));
+const selectedDays = ref<WeekDay[]>(habit.value?.days ?? [...DAYS]);
 
 // One error message per field, keyed by the schema's own field names — stays
 // in sync with habitSchema automatically since it's typed off HabitFormValues.
@@ -43,7 +45,7 @@ function toggleDay(day: WeekDay) {
 const resetForm = () => {
   title.value = '';
   minimalVersion.value = '';
-  selectedDays.value = DAYS.map((d) => d.value);
+  selectedDays.value = [...DAYS];
   anchorPrayer.value = 'Fajr';
 };
 
@@ -61,7 +63,8 @@ function handleSubmit() {
   if (!result.success) {
     for (const issue of result.error.issues) {
       const field = issue.path[0] as keyof HabitFormValues;
-      if (!errors[field]) errors[field] = issue.message;
+      // issue.message is an i18n key — see the note in schema.ts.
+      if (!errors[field]) errors[field] = t(issue.message);
     }
     return;
   }
@@ -82,48 +85,44 @@ function handleSubmit() {
       <div class="empty-icon">
         <Icon icon="lucide:search-x" />
       </div>
-      <h1 class="text-title margin-bottom">Habit not found</h1>
-      <p class="text-subtitle">
-        This habit may have been deleted, or the link you followed is out of date.
-      </p>
-      <RouterLink to="/habits" class="btn primary">Back to habits</RouterLink>
+      <h1 class="text-title margin-bottom">{{ t('habitForm.notFoundTitle') }}</h1>
+      <p class="text-subtitle">{{ t('habitForm.notFoundBody') }}</p>
+      <RouterLink to="/habits" class="btn primary">{{ t('habitForm.backToHabits') }}</RouterLink>
     </div>
 
     <template v-else>
       <header class="page-header">
-        <h1 class="text-title margin-bottom">{{ isEditing ? 'Edit habit' : 'New habit' }}</h1>
-        <span class="text-subtitle">Stack it after a prayer</span>
+        <h1 class="text-title margin-bottom">
+          {{ isEditing ? t('habitForm.editTitle') : t('habitForm.newTitle') }}
+        </h1>
+        <span class="text-subtitle">{{ t('habitForm.subtitle') }}</span>
       </header>
 
       <ModalComponent
         v-model:open="showSuccessModal"
-        :title="isEditing ? 'Habit updated' : 'Habit stacked'"
-        :message="
-          isEditing
-            ? 'Your changes have been saved.'
-            : `It's on your Today list — you'll see it after your next prayer.`
-        "
-        success-btn-label="Go to habits"
-        close-btn-label="Close"
+        :title="isEditing ? t('habitForm.successUpdatedTitle') : t('habitForm.successCreatedTitle')"
+        :message="isEditing ? t('habitForm.successUpdatedBody') : t('habitForm.successCreatedBody')"
+        :success-btn-label="t('habitForm.goToHabits')"
+        :close-btn-label="t('common.close')"
         @success="router.push(isEditing ? `/habits/${habit!.id}` : '/habits')"
         variant="success"
       />
 
       <form @submit.prevent="handleSubmit">
         <div class="field">
-          <div class="field-label">Title <span class="req">*</span></div>
+          <div class="field-label">{{ t('habitForm.fieldTitle') }} <span class="req">*</span></div>
           <input
             v-model="title"
             type="text"
             class="field-input"
             :class="{ invalid: errors.title }"
-            placeholder="e.g. Read Qur'an"
+            :placeholder="t('habitForm.titlePlaceholder')"
           />
           <div v-if="errors.title" class="field-error">{{ errors.title }}</div>
         </div>
 
         <div class="field">
-          <div class="field-label">Anchor prayer <span class="req">*</span></div>
+          <div class="field-label">{{ t('habitForm.fieldAnchor') }} <span class="req">*</span></div>
           <div class="prayer-pills">
             <button
               v-for="prayer in PRAYERS"
@@ -133,51 +132,50 @@ function handleSubmit() {
               :class="{ selected: anchorPrayer === prayer }"
               @click="anchorPrayer = prayer"
             >
-              {{ prayer }}
+              {{ t(`prayers.${prayer}`) }}
             </button>
           </div>
           <div v-if="errors.anchorPrayer" class="field-error">{{ errors.anchorPrayer }}</div>
         </div>
 
         <div class="field">
-          <div class="field-label">Minimal version <span class="req">*</span></div>
+          <div class="field-label">{{ t('habitForm.fieldMinimal') }} <span class="req">*</span></div>
           <input
             v-model="minimalVersion"
             type="text"
             class="field-input"
             :class="{ invalid: errors.minimalVersion }"
-            placeholder="e.g. 1 verse"
+            :placeholder="t('habitForm.minimalPlaceholder')"
           />
           <div v-if="errors.minimalVersion" class="field-error">{{ errors.minimalVersion }}</div>
-          <div v-else class="field-hint">Two-minute rule — smaller than feels necessary.</div>
+          <div v-else class="field-hint">{{ t('habitForm.minimalHint') }}</div>
         </div>
 
         <div class="field">
-          <div class="field-label">Days</div>
+          <div class="field-label">{{ t('habitForm.fieldDays') }}</div>
           <div class="day-pills">
             <button
               v-for="day in DAYS"
-              :key="day.value"
+              :key="day"
               type="button"
               class="day-pill"
-              :class="{ selected: selectedDays.includes(day.value) }"
-              @click="toggleDay(day.value)"
+              :class="{ selected: selectedDays.includes(day) }"
+              :aria-label="t(`weekdays.long.${day}`)"
+              @click="toggleDay(day)"
             >
-              {{ day.label }}
+              {{ t(`weekdays.short.${day}`) }}
             </button>
           </div>
           <div v-if="errors.days" class="field-error">{{ errors.days }}</div>
-          <div v-else class="field-hint">
-            Every day by default — narrow it down for day-specific habits like fasting Mondays.
-          </div>
+          <div v-else class="field-hint">{{ t('habitForm.daysHint') }}</div>
         </div>
 
         <div class="btn-row">
           <RouterLink :to="isEditing ? `/habits/${habit!.id}` : '/habits'" class="btn ghost">
-            Cancel
+            {{ t('common.cancel') }}
           </RouterLink>
           <button type="submit" class="btn primary">
-            {{ isEditing ? 'Update habit' : 'Create habit' }}
+            {{ isEditing ? t('habitForm.submitUpdate') : t('habitForm.submitCreate') }}
           </button>
         </div>
       </form>

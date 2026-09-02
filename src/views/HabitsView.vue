@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { Icon } from '@iconify/vue';
+import { useI18n } from 'vue-i18n';
 import { HabitRow } from '@/components';
+import { useLocale } from '@/composables';
 import { useHabitsStore } from '@/stores/habits';
 import type { HabitItem } from '@/types';
 import { WEEKDAY_DISPLAY_ORDER } from '@/types';
 
+const { t } = useI18n();
+const { locale } = useLocale();
 const { habits, isCompletedToday, isScheduledToday, currentStreak, isNewHabit, toggleComplete } =
   useHabitsStore();
 
 type Filter = 'all' | 'active' | 'paused';
-const FILTERS: { id: Filter; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'active', label: 'Active' },
-  { id: 'paused', label: 'Paused' },
-];
+const FILTERS: Filter[] = ['all', 'active', 'paused'];
 
 const filter = ref<Filter>('all');
 
@@ -26,12 +26,17 @@ const filter = ref<Filter>('all');
  * slot is better spent on the streak than on a third copy of the same fact.
  */
 function statusOf(habitId: string, paused: boolean) {
-  if (paused) return { text: 'Paused', cls: 'new' };
+  if (paused) return { text: t('habits.status.paused'), cls: 'new' };
   const streak = currentStreak(habitId);
   // A streak long enough to be worth protecting gets the pulsing dot.
-  if (streak > 0) return { text: `${streak}-day`, cls: streak >= 7 ? 'streak hot' : 'streak' };
-  if (isNewHabit(habitId)) return { text: 'New', cls: 'new' };
-  return { text: 'At risk', cls: 'risk' };
+  if (streak > 0) {
+    return {
+      text: t('habits.status.streakDays', { count: streak }),
+      cls: streak >= 7 ? 'streak hot' : 'streak',
+    };
+  }
+  if (isNewHabit(habitId)) return { text: t('habits.status.new'), cls: 'new' };
+  return { text: t('habits.status.atRisk'), cls: 'risk' };
 }
 
 /**
@@ -40,10 +45,23 @@ function statusOf(habitId: string, paused: boolean) {
  * user is missing at that moment. Every-day habits never hit this branch, so
  * the list is always a genuine subset worth reading.
  */
+// Intl.ListFormat rather than join(', '): the separator and the final
+// conjunction are part of the language, not punctuation we get to pick —
+// English wants "Mon, Wed and Fri", Arabic wants "الاثنين والأربعاء والجمعة"
+// with no commas at all.
+const listFormatter = computed(
+  () => new Intl.ListFormat(locale.value, { style: 'long', type: 'conjunction' }),
+);
+
 function metaFor(habit: HabitItem, scheduledToday: boolean): string | undefined {
   if (scheduledToday || habit.paused) return undefined;
-  const days = WEEKDAY_DISPLAY_ORDER.filter((d) => habit.days.includes(d));
-  return `After ${habit.anchorPrayer} · runs ${days.join(', ')}`;
+  const days = WEEKDAY_DISPLAY_ORDER.filter((d) => habit.days.includes(d)).map((d) =>
+    t(`weekdays.long.${d}`),
+  );
+  return t('habits.runsOn', {
+    prayer: t(`prayers.${habit.anchorPrayer}`),
+    days: listFormatter.value.format(days),
+  });
 }
 
 // Status and completion are resolved once per habit here rather than called
@@ -76,40 +94,47 @@ const pausedCount = computed(() => habits.filter((h) => h.paused).length);
   <div class="view">
     <header class="page-header">
       <div>
-        <h1 class="text-title margin-bottom">Habits</h1>
+        <h1 class="text-title margin-bottom">{{ t('habits.title') }}</h1>
         <p class="text-subtitle count">
-          {{ habits.length }} total<span v-if="pausedCount"> · {{ pausedCount }} paused</span>
+          {{ t('habits.total', { count: habits.length }) }}
+          <span v-if="pausedCount"> · {{ t('habits.pausedCount', { count: pausedCount }) }}</span>
         </p>
       </div>
       <RouterLink to="/habits/new" class="btn primary new-btn">
         <Icon icon="lucide:plus" aria-hidden="true" />
-        New habit
+        {{ t('nav.newHabit') }}
       </RouterLink>
     </header>
 
-    <div v-if="habits.length > 0" class="segmented" role="group" aria-label="Filter habits">
+    <div
+      v-if="habits.length > 0"
+      class="segmented"
+      role="group"
+      :aria-label="t('habits.filterLabel')"
+    >
       <button
         v-for="f in FILTERS"
-        :key="f.id"
+        :key="f"
         type="button"
-        :aria-pressed="filter === f.id"
-        @click="filter = f.id"
+        :aria-pressed="filter === f"
+        @click="filter = f"
       >
-        {{ f.label }}
+        {{ t(`habits.filters.${f}`) }}
       </button>
     </div>
 
     <div v-if="habits.length === 0" class="empty-state">
       <div class="empty-icon"><Icon icon="lucide:list-plus" /></div>
-      <h2 class="text-title margin-bottom">No habits yet</h2>
-      <p class="text-subtitle">
-        Pick a prayer you already pray and attach something small to it — one verse is a real habit.
-      </p>
-      <RouterLink to="/habits/new" class="btn primary">Create your first habit</RouterLink>
+      <h2 class="text-title margin-bottom">{{ t('habits.noHabitsTitle') }}</h2>
+      <p class="text-subtitle">{{ t('habits.noHabitsBody') }}</p>
+      <RouterLink to="/habits/new" class="btn primary">{{ t('habits.createFirst') }}</RouterLink>
     </div>
 
+    <!-- One key per filter rather than interpolating the filter name into a
+         sentence: "No paused habits" and "لا توجد عادات موقوفة" put the
+         adjective in different places and inflect it differently. -->
     <p v-else-if="rows.length === 0" class="text-subtitle empty-filter">
-      No {{ filter }} habits.
+      {{ t(`habits.empty${filter.charAt(0).toUpperCase()}${filter.slice(1)}`) }}
     </p>
 
     <!-- TransitionGroup so deleting or filtering animates the remaining rows into
@@ -169,8 +194,12 @@ const pausedCount = computed(() => habits.filter((h) => h.paused).length);
   left: 0;
   right: 0;
 }
+/* Rows slide out toward the leading edge — which is the other side in Arabic. */
 .list-leave-to {
   opacity: 0;
   transform: translateX(-16px);
+}
+:global([dir='rtl']) .list-leave-to {
+  transform: translateX(16px);
 }
 </style>

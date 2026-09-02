@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Icon } from '@iconify/vue';
+import { useI18n } from 'vue-i18n';
 import GeometryCanvas from '@/components/GeometryCanvas.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
-import { useNow, usePrayerTimes } from '@/composables';
+import LocaleToggle from '@/components/LocaleToggle.vue';
+import { useLocale, useNow, usePrayerTimes } from '@/composables';
 import { useHabitsStore } from '@/stores/habits';
 import { vReveal } from '@/directives/reveal';
+
+const { t } = useI18n();
+const { isRtlLocale } = useLocale();
 
 // The hero card shows the visitor's *own* next prayer, not a screenshot of
 // someone else's. It's the fastest way to make the premise concrete: the app
@@ -20,55 +25,26 @@ const { habits } = useHabitsStore();
 // rather than pitching them the product they're using.
 const isReturning = computed(() => habits.length > 0);
 
+// "Onward" points the way the reader is already going.
+const ctaArrow = computed(() =>
+  isRtlLocale.value ? 'lucide:arrow-left' : 'lucide:arrow-right',
+);
+
+// Icon plus the key pair for its copy — the strings themselves live in the
+// locale files, so adding a language doesn't mean touching this list.
 const STEPS = [
-  {
-    icon: 'lucide:anchor',
-    title: 'Anchor it to a prayer',
-    body: 'You already stop five times a day. That is the cue — you never have to remember it, and you never have to invent a time that works.',
-  },
-  {
-    icon: 'lucide:feather',
-    title: 'Shrink it until it is easy',
-    body: 'One verse. Thirty-three counts. A single dollar. Small enough that a bad day still ends with it done.',
-  },
-  {
-    icon: 'lucide:git-commit-horizontal',
-    title: 'Let the chain do the work',
-    body: 'Every check-in extends a streak you can see. Missing one day is a gap, not a failure — the chain picks up again tomorrow.',
-  },
+  { icon: 'lucide:anchor', key: 'anchor' },
+  { icon: 'lucide:feather', key: 'shrink' },
+  { icon: 'lucide:git-commit-horizontal', key: 'chain' },
 ];
 
 const FEATURES = [
-  {
-    icon: 'lucide:map-pin',
-    title: 'Your real prayer times',
-    body: 'Calculated for your coordinates, refreshed daily, with the calculation method your community follows.',
-  },
-  {
-    icon: 'lucide:calendar-check',
-    title: 'Day-specific schedules',
-    body: 'Fasting Mondays, Sadaqah Fridays, Qur’an every morning. A habit only shows up on the days it belongs to.',
-  },
-  {
-    icon: 'lucide:trending-up',
-    title: 'Honest statistics',
-    body: 'Completion rate by weekday and by prayer, so you can see which anchor is carrying you and which one keeps slipping.',
-  },
-  {
-    icon: 'lucide:pause',
-    title: 'Pause without losing history',
-    body: 'Travelling, unwell, or in a hard season? Pause a habit. It stops counting against you and keeps everything it earned.',
-  },
-  {
-    icon: 'lucide:moon-star',
-    title: 'Built for night and day',
-    body: 'A considered dark theme for Fajr and Isha — not an inverted screenshot, a second palette designed on purpose.',
-  },
-  {
-    icon: 'lucide:lock',
-    title: 'Stays on your device',
-    body: 'Your practice is written to your browser’s own storage. No account, no server, nothing to leak.',
-  },
+  { icon: 'lucide:map-pin', key: 'times' },
+  { icon: 'lucide:calendar-check', key: 'schedule' },
+  { icon: 'lucide:trending-up', key: 'stats' },
+  { icon: 'lucide:pause', key: 'pause' },
+  { icon: 'lucide:moon-star', key: 'theme' },
+  { icon: 'lucide:lock', key: 'privacy' },
 ];
 </script>
 
@@ -80,11 +56,12 @@ const FEATURES = [
         WirdStack
       </RouterLink>
       <nav class="landing-nav-links">
-        <a href="#how" class="nav-link">How it works</a>
-        <a href="#features" class="nav-link">Features</a>
+        <a href="#how" class="nav-link">{{ t('landing.howItWorks') }}</a>
+        <a href="#features" class="nav-link">{{ t('landing.features') }}</a>
         <ThemeToggle />
+        <LocaleToggle />
         <RouterLink to="/today" class="btn primary">
-          {{ isReturning ? 'Open WirdStack' : 'Start free' }}
+          {{ isReturning ? t('landing.openApp') : t('landing.startFree') }}
         </RouterLink>
       </nav>
     </header>
@@ -95,57 +72,56 @@ const FEATURES = [
       <div class="hero-inner">
         <p class="hero-eyebrow rise" style="--i: 0">
           <Icon icon="lucide:sparkles" aria-hidden="true" />
-          Habit stacking, anchored to salah
+          {{ t('landing.eyebrow') }}
         </p>
 
         <h1 class="text-display rise" style="--i: 1">
-          Small acts,<br />
-          kept up <em>daily</em>.
+          {{ t('landing.headlineLead') }}<br />
+          {{ t('landing.headlineRest') }} <em>{{ t('landing.headlineEmphasis') }}</em
+          >.
         </h1>
 
-        <p class="hero-lede rise text-body" style="--i: 2">
-          The Prophet ﷺ said the deeds most beloved to Allah are those done consistently, even if
-          they are few. WirdStack attaches one small act to each prayer you already pray — so the habit
-          has somewhere to live.
-        </p>
+        <p class="hero-lede rise text-body" style="--i: 2">{{ t('landing.lede') }}</p>
 
         <div class="hero-cta rise" style="--i: 3">
           <RouterLink to="/today" class="btn primary lg">
-            {{ isReturning ? 'Continue where you left off' : 'Start your first habit' }}
-            <Icon icon="lucide:arrow-right" aria-hidden="true" />
+            {{ isReturning ? t('landing.ctaReturning') : t('landing.ctaFirst') }}
+            <Icon :icon="ctaArrow" aria-hidden="true" />
           </RouterLink>
-          <a href="#how" class="btn ghost lg">See how it works</a>
+          <a href="#how" class="btn ghost lg">{{ t('landing.seeHow') }}</a>
         </div>
 
-        <p class="hero-note rise text-caption" style="--i: 4">
-          Free · No account · Works offline
-        </p>
+        <p class="hero-note rise text-caption" style="--i: 4">{{ t('landing.note') }}</p>
 
         <!-- Live, not a mockup. -->
         <div class="hero-card rise" style="--i: 5">
           <div class="hero-card-head">
-            <span class="text-label">Next prayer where you are</span>
+            <span class="text-label">{{ t('landing.cardHead') }}</span>
             <span class="live-dot" aria-hidden="true" />
           </div>
 
           <template v-if="status === 'ready' && nextPrayer">
             <div class="hero-card-main">
-              <span class="hero-prayer">{{ nextPrayer.prayer }}</span>
+              <span class="hero-prayer">{{ t(`prayers.${nextPrayer.prayer}`) }}</span>
               <span class="hero-time mono">{{ nextPrayer.time }}</span>
             </div>
             <p class="text-meta">
-              in {{ countdown }}{{ nextPrayer.isTomorrow ? ' · tomorrow' : '' }} ·
-              <button v-if="usingFallbackLocation" type="button" class="link-btn" @click="requestLocation">
-                using {{ locationLabel }} — use my location
+              {{ t('today.inTime', { time: countdown })
+              }}{{ nextPrayer.isTomorrow ? ` · ${t('landing.cardTomorrow')}` : '' }} ·
+              <button
+                v-if="usingFallbackLocation"
+                type="button"
+                class="link-btn"
+                @click="requestLocation"
+              >
+                {{ t('landing.cardFallback', { location: locationLabel }) }}
               </button>
               <span v-else>{{ locationLabel }}</span>
             </p>
           </template>
 
           <template v-else-if="status === 'error'">
-            <p class="text-meta">
-              Prayer times are offline right now — everything else still works.
-            </p>
+            <p class="text-meta">{{ t('landing.cardOffline') }}</p>
           </template>
 
           <template v-else>
@@ -160,63 +136,58 @@ const FEATURES = [
 
     <section id="how" class="section">
       <div class="section-head">
-        <p class="text-eyebrow" v-reveal>The method</p>
-        <h2 class="text-headline" v-reveal="1">Three rules, and that is the whole app.</h2>
+        <p class="text-eyebrow" v-reveal>{{ t('landing.methodEyebrow') }}</p>
+        <h2 class="text-headline" v-reveal="1">{{ t('landing.methodHeadline') }}</h2>
       </div>
 
       <ol class="steps">
-        <li v-for="(step, i) in STEPS" :key="step.title" v-reveal="i" class="step">
+        <li v-for="(step, i) in STEPS" :key="step.key" v-reveal="i" class="step">
           <span class="step-number mono">{{ String(i + 1).padStart(2, '0') }}</span>
           <Icon :icon="step.icon" class="step-icon" aria-hidden="true" />
-          <h3 class="step-title">{{ step.title }}</h3>
-          <p class="text-meta">{{ step.body }}</p>
+          <h3 class="step-title">{{ t(`landing.steps.${step.key}Title`) }}</h3>
+          <p class="text-meta">{{ t(`landing.steps.${step.key}Body`) }}</p>
         </li>
       </ol>
     </section>
 
     <section class="quote-section" v-reveal>
       <blockquote class="quote">
-        <p class="quote-text">
-          “The most beloved of deeds to Allah are those that are most consistent, even if it is
-          small.”
-        </p>
-        <footer class="quote-source text-caption">Sahih al-Bukhari 6464</footer>
+        <p class="quote-text">“{{ t('landing.quote') }}”</p>
+        <footer class="quote-source text-caption">{{ t('landing.quoteSource') }}</footer>
       </blockquote>
     </section>
 
     <section id="features" class="section">
       <div class="section-head">
-        <p class="text-eyebrow" v-reveal>What you get</p>
-        <h2 class="text-headline" v-reveal="1">Enough to be useful. Nothing to manage.</h2>
+        <p class="text-eyebrow" v-reveal>{{ t('landing.featuresEyebrow') }}</p>
+        <h2 class="text-headline" v-reveal="1">{{ t('landing.featuresHeadline') }}</h2>
       </div>
 
       <div class="feature-grid">
         <article
           v-for="(feature, i) in FEATURES"
-          :key="feature.title"
+          :key="feature.key"
           v-reveal="i % 3"
           class="feature-card"
         >
           <span class="feature-icon"><Icon :icon="feature.icon" aria-hidden="true" /></span>
-          <h3 class="feature-title">{{ feature.title }}</h3>
-          <p class="text-meta">{{ feature.body }}</p>
+          <h3 class="feature-title">{{ t(`landing.features_.${feature.key}Title`) }}</h3>
+          <p class="text-meta">{{ t(`landing.features_.${feature.key}Body`) }}</p>
         </article>
       </div>
     </section>
 
     <section class="closer" v-reveal>
-      <h2 class="text-headline">Start with one verse.</h2>
-      <p class="text-body closer-lede">
-        Pick a prayer, pick something small, and let tomorrow take care of itself.
-      </p>
+      <h2 class="text-headline">{{ t('landing.closerTitle') }}</h2>
+      <p class="text-body closer-lede">{{ t('landing.closerBody') }}</p>
       <RouterLink to="/today" class="btn primary lg">
-        Open WirdStack
-        <Icon icon="lucide:arrow-right" aria-hidden="true" />
+        {{ t('landing.openApp') }}
+        <Icon :icon="ctaArrow" aria-hidden="true" />
       </RouterLink>
     </section>
 
     <footer class="landing-footer">
-      <span class="text-caption">WirdStack — a wird (ورد) is a devotional practice kept up daily; this app helps you stack one onto every prayer.</span>
+      <span class="text-caption">{{ t('landing.footer') }}</span>
     </footer>
   </div>
 </template>
@@ -522,10 +493,15 @@ const FEATURES = [
   border-radius: var(--radius-xl);
 }
 
+/* The one place that uses the scripture face: this is a hadith, and in Arabic
+   it should arrive in naskh the way it would in print, not in the Kufi the
+   app's own headings are set in. In English the stack falls through to
+   Fraunces, so the Latin rendering is unchanged. Naskh carries more of its
+   weight below the baseline than Kufi, hence the looser line-height. */
 .quote-text {
-  font-family: var(--font-display);
+  font-family: var(--font-naskh);
   font-size: var(--text-xl);
-  line-height: 1.45;
+  line-height: 1.7;
   color: var(--text);
   margin: 0 0 var(--space-4);
 }

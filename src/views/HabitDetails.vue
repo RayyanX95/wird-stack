@@ -2,11 +2,15 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue';
+import { useI18n } from 'vue-i18n';
 import { useHabitsStore } from '@/stores/habits';
-import { WEEKDAY_DISPLAY_ORDER } from '@/types';
-import { startOfWeek, toIso } from '@/utils';
+import { useLocale } from '@/composables';
+import { WEEKDAY_DISPLAY_ORDER, WEEKDAY_ORDER_SUN_FIRST } from '@/types';
+import { intlLocale, isolate, startOfWeek, toIso } from '@/utils';
 import { ModalComponent } from '@/components';
 
+const { t } = useI18n();
+const { locale, isRtlLocale } = useLocale();
 const route = useRoute();
 const router = useRouter();
 const {
@@ -59,7 +63,10 @@ const weekDays = computed(() => {
     days.push({
       date: iso,
       dayNumber: d.getDate(),
-      dowLabel: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
+      // Keyed off the weekday value rather than Intl's narrow name so the
+      // Arabic column headers are the ح/ن/ث set the locale file defines,
+      // not Intl's own (which repeats "ا" for three different days).
+      dowLabel: t(`weekdays.short.${WEEKDAY_ORDER_SUN_FIRST[d.getDay()]}`),
       isToday: iso === todayIso,
       state: isFuture ? 'upcoming' : dayState(habitId.value, iso),
     });
@@ -70,15 +77,22 @@ const weekDays = computed(() => {
 const weekRangeLabel = computed(() => {
   if (weekDays.value.length === 0) return '';
   const format = (iso: string) =>
-    new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  return weekOffset.value === 0
-    ? 'This week'
-    : `${format(weekDays.value[0]!.date)} – ${format(weekDays.value[6]!.date)}`;
+    new Date(iso).toLocaleDateString(intlLocale(locale.value), {
+      month: 'short',
+      day: 'numeric',
+    });
+  if (weekOffset.value === 0) return t('habitDetails.thisWeek');
+  // The earlier date leads in both directions; in RTL that means it belongs
+  // on the right, which is what swapping the operands around the dash does.
+  const [from, to] = [weekDays.value[0]!.date, weekDays.value[6]!.date];
+  return isRtlLocale.value
+    ? `${format(to)} – ${format(from)}`
+    : `${format(from)} – ${format(to)}`;
 });
 
 const createdOnLabel = computed(() => {
   if (!habit.value) return '';
-  return new Date(habit.value.createdAt).toLocaleDateString('en-US', {
+  return new Date(habit.value.createdAt).toLocaleDateString(intlLocale(locale.value), {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -114,79 +128,90 @@ const scheduledDays = computed(() =>
 
 <template>
   <div class="view habit-details-page">
-    <RouterLink to="/habits" class="back-link">Back to habits</RouterLink>
+    <RouterLink to="/habits" class="back-link">{{ t('habitDetails.backToHabits') }}</RouterLink>
 
     <ModalComponent
       v-model:open="showDeleteConfirm"
-      title="Delete habit?"
-      :message="`This will permanently delete '${habit?.title}' and its completion history. This can't be undone.`"
-      close-btn-label="Cancel"
-      success-btn-label="Delete"
+      :title="t('habitDetails.deleteTitle')"
+      :message="t('habitDetails.deleteBody', { title: isolate(habit?.title) })"
+      :close-btn-label="t('common.cancel')"
+      :success-btn-label="t('common.delete')"
       variant="error"
       @success="onConfirmDelete"
     />
 
     <ModalComponent
       v-model:open="showDeletedModal"
-      title="Deleted"
-      message="The habit has been deleted."
-      close-btn-label="Close"
+      :title="t('habitDetails.deletedTitle')"
+      :message="t('habitDetails.deletedBody')"
+      :close-btn-label="t('common.close')"
       variant="info"
     />
 
     <template v-if="habit">
       <header class="page-header">
         <h1 class="text-title margin-bottom">
-          {{ habit.title }}
-          <span v-if="habit.paused" class="pill new">Paused</span>
+          <bdi>{{ habit.title }}</bdi>
+          <span v-if="habit.paused" class="pill new">{{ t('habits.status.paused') }}</span>
         </h1>
-        <span class="text-subtitle"
-          >After {{ habit.anchorPrayer }} · {{ habit.minimalVersion }}</span
-        >
-        <span class="text-caption created-on">Started {{ createdOnLabel }}</span>
+        <span class="text-subtitle">
+          {{
+            t('habits.afterPrayer', {
+              prayer: t(`prayers.${habit.anchorPrayer}`),
+              minimal: isolate(habit.minimalVersion),
+            })
+          }}
+        </span>
+        <span class="text-caption created-on">
+          {{ t('habitDetails.startedOn', { date: createdOnLabel }) }}
+        </span>
       </header>
 
       <div class="stat-cards">
         <div class="stat-card" :class="{ streak: currentStreak(habit.id) > 0 }">
           <div class="stat-value">{{ currentStreak(habit.id) }}</div>
-          <div class="stat-label">Current streak</div>
+          <div class="stat-label">{{ t('habitDetails.currentStreak') }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-value">
             {{ Math.max(longestStreak(habit.id), currentStreak(habit.id)) }}
           </div>
-          <div class="stat-label">Longest streak</div>
+          <div class="stat-label">{{ t('habitDetails.longestStreak') }}</div>
         </div>
       </div>
 
       <div class="field">
-        <div class="field-label">Set in Days</div>
+        <div class="field-label">{{ t('habitDetails.scheduledDays') }}</div>
         <div class="day-pills">
           <span v-for="day in scheduledDays" :key="day" class="day-pill selected">
-            {{ day }}
+            {{ t(`weekdays.long.${day}`) }}
           </span>
         </div>
       </div>
 
       <div class="history-panel">
         <div class="history-header">
+          <!-- The chevrons follow the reading direction: "back in time" points
+               left in English and right in Arabic. Swapping the icons rather
+               than the buttons keeps the DOM order (previous, label, next)
+               intact for screen readers. -->
           <button
             type="button"
             class="week-nav"
-            aria-label="Previous week"
+            :aria-label="t('habitDetails.previousWeek')"
             @click="goToPreviousWeek"
           >
-            <Icon icon="lucide:chevron-left" />
+            <Icon :icon="isRtlLocale ? 'lucide:chevron-right' : 'lucide:chevron-left'" />
           </button>
           <span class="text-label">{{ weekRangeLabel }}</span>
           <button
             type="button"
             class="week-nav"
-            aria-label="Next week"
+            :aria-label="t('habitDetails.nextWeek')"
             :disabled="!canGoToNextWeek"
             @click="goToNextWeek"
           >
-            <Icon icon="lucide:chevron-right" />
+            <Icon :icon="isRtlLocale ? 'lucide:chevron-left' : 'lucide:chevron-right'" />
           </button>
         </div>
 
@@ -210,10 +235,12 @@ const scheduledDays = computed(() =>
             :title="d.date"
             :aria-label="
               d.state === 'not-scheduled'
-                ? `${d.date} — not scheduled`
+                ? t('habitDetails.cellNotScheduled', { date: d.date })
                 : d.state === 'upcoming'
-                  ? `${d.date} — upcoming`
-                  : `${d.date} — ${d.state === 'done' ? 'completed, click to unmark' : 'missed, click to mark done'}`
+                  ? t('habitDetails.cellUpcoming', { date: d.date })
+                  : d.state === 'done'
+                    ? t('habitDetails.cellDone', { date: d.date })
+                    : t('habitDetails.cellMissed', { date: d.date })
             "
             @click="toggleComplete(habit.id, d.date)"
           >
@@ -222,29 +249,35 @@ const scheduledDays = computed(() =>
         </div>
 
         <div class="legend-row text-caption">
-          <span class="legend-item"><span class="legend-key done" aria-hidden="true" /> Done</span>
-          <span class="legend-item"><span class="legend-key missed" aria-hidden="true" /> Missed</span>
-          <span class="legend-item"><span class="legend-key off" aria-hidden="true" /> Not scheduled</span>
+          <span class="legend-item">
+            <span class="legend-key done" aria-hidden="true" /> {{ t('common.done') }}
+          </span>
+          <span class="legend-item">
+            <span class="legend-key missed" aria-hidden="true" /> {{ t('common.missed') }}
+          </span>
+          <span class="legend-item">
+            <span class="legend-key off" aria-hidden="true" /> {{ t('common.notScheduled') }}
+          </span>
         </div>
       </div>
 
       <div class="btn-row">
         <button type="button" class="btn ghost" @click="onTogglePause">
           <Icon :icon="habit.paused ? 'lucide:play' : 'lucide:pause'" aria-hidden="true" />
-          {{ habit.paused ? 'Resume' : 'Pause' }}
+          {{ habit.paused ? t('common.resume') : t('common.pause') }}
         </button>
         <RouterLink :to="`/habits/${habit.id}/edit`" class="btn ghost">
           <Icon icon="lucide:pencil" aria-hidden="true" />
-          Edit
+          {{ t('common.edit') }}
         </RouterLink>
         <button type="button" class="btn danger" @click="onDelete">
           <Icon icon="lucide:trash-2" aria-hidden="true" />
-          Delete
+          {{ t('common.delete') }}
         </button>
       </div>
     </template>
 
-    <p v-else-if="!showDeletedModal" class="text-subtitle">Habit not found.</p>
+    <p v-else-if="!showDeletedModal" class="text-subtitle">{{ t('habitDetails.notFound') }}</p>
   </div>
 </template>
 

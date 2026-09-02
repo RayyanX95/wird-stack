@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Icon } from '@iconify/vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 /**
  * A circular completion meter for the day.
@@ -32,7 +35,7 @@ const complete = computed(() => props.total > 0 && props.value >= props.total);
     :class="{ complete }"
     :style="{ width: `${size}px`, height: `${size}px` }"
     role="img"
-    :aria-label="label ?? `${value} of ${total} habits done today`"
+    :aria-label="label ?? t('today.ringLabel', { value, total })"
   >
     <svg viewBox="0 0 100 100">
       <circle class="ring-track" cx="50" cy="50" :r="RADIUS" />
@@ -103,10 +106,14 @@ svg {
   justify-content: center;
 }
 
+/* A fraction is a formula, not a sentence: "1/2" stays "1/2" in Arabic, so
+   this one box opts out of the page's direction. Without it the flex row
+   reverses and 1 of 2 renders as "2/1". */
 .ring-count {
   display: flex;
   align-items: baseline;
   gap: 1px;
+  direction: ltr;
 }
 
 .ring-value {

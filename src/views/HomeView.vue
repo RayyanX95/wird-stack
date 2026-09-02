@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Icon } from '@iconify/vue';
+import { useI18n } from 'vue-i18n';
 import { PrayerGroup, ProgressRing } from '@/components';
-import { useNow, usePrayerTimes, CALCULATION_METHODS } from '@/composables';
+import { useLocale, useNow, usePrayerTimes, CALCULATION_METHOD_IDS } from '@/composables';
 import { useHabitsStore } from '@/stores/habits';
 import { PRAYERS } from '@/types';
 import { gregorianLabel, hijriLabel, timeOfDayGreeting } from '@/utils';
+
+const { t } = useI18n();
+const { locale } = useLocale();
 
 const now = useNow(30_000);
 const {
@@ -24,12 +28,14 @@ const {
 
 const { habits, isCompletedToday, isScheduledToday, toggleComplete } = useHabitsStore();
 
-const greeting = computed(() => timeOfDayGreeting(now.value));
+const greeting = computed(() => t(`today.greeting.${timeOfDayGreeting(now.value)}`));
 
 // Recomputed from the ticking clock so a tab left open overnight rolls over
-// to the new date instead of showing yesterday's.
-const dateLabel = computed(() => gregorianLabel(now.value));
-const hijri = computed(() => hijriLabel(now.value));
+// to the new date instead of showing yesterday's — and from `locale`, so a
+// language switch reformats it rather than leaving an English date under
+// Arabic copy.
+const dateLabel = computed(() => gregorianLabel(now.value, locale.value));
+const hijri = computed(() => hijriLabel(now.value, locale.value));
 
 /** Active habits due today — the denominator for everything on this screen. */
 const dueToday = computed(() =>
@@ -70,9 +76,9 @@ const passedPrayers = computed(() => {
 });
 
 const summary = computed(() => {
-  if (dueToday.value.length === 0) return 'Nothing scheduled for today';
-  if (allDone.value) return 'Every habit stacked today — alhamdulillah';
-  return `${doneCount.value} of ${dueToday.value.length} habits stacked so far today`;
+  if (dueToday.value.length === 0) return t('today.summaryNone');
+  if (allDone.value) return t('today.summaryAllDone');
+  return t('today.summaryProgress', { done: doneCount.value, total: dueToday.value.length });
 });
 </script>
 
@@ -102,10 +108,12 @@ const summary = computed(() => {
         <div v-if="dueToday.length > 0 && nextPrayer" class="status-divider" aria-hidden="true" />
 
         <div v-if="nextPrayer" class="next-prayer">
-          <span class="text-label">{{ nextPrayer.isTomorrow ? 'Tomorrow' : 'Next prayer' }}</span>
-          <span class="np-name">{{ nextPrayer.prayer }}</span>
+          <span class="text-label">
+            {{ nextPrayer.isTomorrow ? t('today.tomorrow') : t('today.nextPrayer') }}
+          </span>
+          <span class="np-name">{{ t(`prayers.${nextPrayer.prayer}`) }}</span>
           <span class="np-meta">
-            <span class="np-countdown mono">in {{ countdown }}</span>
+            <span class="np-countdown mono">{{ t('today.inTime', { time: countdown }) }}</span>
             <span class="np-time mono">{{ nextPrayer.time }}</span>
           </span>
         </div>
@@ -117,25 +125,23 @@ const summary = computed(() => {
     <div v-if="usingFallbackLocation && status === 'ready'" class="notice">
       <Icon icon="lucide:map-pin" aria-hidden="true" />
       <span class="text-meta">
-        Showing prayer times for {{ locationLabel }}.
+        {{ t('today.fallbackLocation', { location: locationLabel }) }}
       </span>
       <button type="button" class="btn ghost notice-btn" @click="requestLocation">
-        Use my location
+        {{ t('today.useMyLocation') }}
       </button>
     </div>
 
     <div v-if="status === 'error'" class="notice warn">
       <Icon icon="lucide:cloud-off" aria-hidden="true" />
-      <span class="text-meta">{{ error ?? 'Prayer times are unavailable right now.' }}</span>
+      <span class="text-meta">{{ error ?? t('today.timesUnavailable') }}</span>
     </div>
 
     <div v-if="dueToday.length === 0" class="empty-state">
       <div class="empty-icon"><Icon icon="lucide:sunrise" /></div>
-      <h2 class="text-title margin-bottom">Nothing due today</h2>
-      <p class="text-subtitle">
-        Stack one small act onto a prayer you already pray, and it will show up here tomorrow.
-      </p>
-      <RouterLink to="/habits/new" class="btn primary">Create your first habit</RouterLink>
+      <h2 class="text-title margin-bottom">{{ t('today.emptyTitle') }}</h2>
+      <p class="text-subtitle">{{ t('today.emptyBody') }}</p>
+      <RouterLink to="/habits/new" class="btn primary">{{ t('today.createFirst') }}</RouterLink>
     </div>
 
     <div v-else class="groups">
@@ -159,17 +165,17 @@ const summary = computed(() => {
          technical one, so it's the user's to answer — kept in a <details> so it
          costs nothing visually until someone goes looking for it. -->
     <details class="method-picker">
-      <summary class="text-caption">Prayer time calculation method</summary>
+      <summary class="text-caption">{{ t('today.methodPicker') }}</summary>
       <div class="method-options">
         <button
-          v-for="m in CALCULATION_METHODS"
-          :key="m.id"
+          v-for="id in CALCULATION_METHOD_IDS"
+          :key="id"
           type="button"
           class="method-option"
-          :class="{ selected: method === m.id }"
-          @click="setMethod(m.id)"
+          :class="{ selected: method === id }"
+          @click="setMethod(id)"
         >
-          {{ m.label }}
+          {{ t(`prayerTimes.methods.${id}`) }}
         </button>
       </div>
     </details>
@@ -210,7 +216,10 @@ const summary = computed(() => {
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4);
+  /* Logical padding — the ring sits on the leading edge and wants the tighter
+     inset, which is the left one in English and the right one in Arabic. */
+  padding-block: var(--space-3);
+  padding-inline: var(--space-4) var(--space-5);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);

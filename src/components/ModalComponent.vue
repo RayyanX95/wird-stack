@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Icon } from '@iconify/vue';
+import { useI18n } from 'vue-i18n';
 import {
   DialogClose,
   DialogContent,
@@ -18,6 +19,8 @@ const VARIANT_ICONS: Record<ModalVariant, string> = {
   error: 'lucide:alert-triangle',
 };
 
+const { t } = useI18n();
+
 const props = withDefaults(
   defineProps<{
     title?: string;
@@ -26,10 +29,15 @@ const props = withDefaults(
     closeBtnLabel?: string;
     variant?: ModalVariant;
   }>(),
-  { closeBtnLabel: 'Close', variant: 'success' },
+  { variant: 'success' },
 );
 
 const icon = computed(() => VARIANT_ICONS[props.variant]);
+
+// Resolved here rather than as a withDefaults value: a default is evaluated
+// once at prop-resolution time, so a literal 'Close' would survive a language
+// switch while every other string on the dialog changed.
+const closeLabel = computed(() => props.closeBtnLabel ?? t('common.close'));
 
 const emit = defineEmits<{ success: [] }>();
 
@@ -61,7 +69,7 @@ function handleSuccess() {
         </DialogDescription>
 
         <div class="dialog-actions">
-          <DialogClose class="btn ghost">{{ closeBtnLabel }}</DialogClose>
+          <DialogClose class="btn ghost">{{ closeLabel }}</DialogClose>
           <button
             v-if="successBtnLabel"
             type="button"
@@ -73,7 +81,7 @@ function handleSuccess() {
           </button>
         </div>
 
-        <DialogClose class="dialog-close" aria-label="Close">
+        <DialogClose class="dialog-close" :aria-label="t('common.close')">
           <Icon icon="lucide:x" />
         </DialogClose>
       </DialogContent>
@@ -170,7 +178,7 @@ function handleSuccess() {
 .dialog-close {
   position: absolute;
   top: 14px;
-  right: 14px;
+  inset-inline-end: 14px;
   width: 26px;
   height: 26px;
   border-radius: 50%;
