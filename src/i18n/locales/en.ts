@@ -263,6 +263,57 @@ export default {
     pausedExcludedOne: '1 paused habit excluded from these stats.',
   },
 
+  privacy: {
+    title: 'Privacy',
+    updated: 'Last updated {date}',
+    back: 'Back to home',
+
+    summaryHeading: 'The short version',
+    summaryBody:
+      'WirdStack has no accounts, no analytics, no cookies, and no advertising. Your habits and your history are written to your own browser and are never sent anywhere. The only thing that leaves your device is an approximate location, used to calculate your prayer times.',
+
+    storedHeading: 'What stays on your device',
+    storedBody:
+      'All of this is kept in your browser’s local storage. It never reaches us, because there is no server to reach:',
+    storedHabits: 'Your habits and their completion history',
+    storedCoords: 'Your approximate coordinates and the city name resolved from them',
+    storedSettings: 'Your prayer-time calculation method, theme, and language',
+    storedTimes: 'A cache of the prayer times already fetched for today',
+
+    sentHeading: 'What leaves your device',
+    sentBody:
+      'Your approximate location, and nothing else. It goes to two services that turn it into prayer times and a city name. We do not control them, and their own privacy policies apply:',
+    sentAladhanName: 'Aladhan (aladhan.com)',
+    sentAladhanDetail:
+      'receives your approximate coordinates and the calculation method, and returns prayer times. Your habits are never included.',
+    sentGeocodeName: 'BigDataCloud (bigdatacloud.com)',
+    sentGeocodeDetail:
+      'receives the same approximate coordinates once per location, and returns a city name so the app can say “Riyadh” instead of a pair of numbers.',
+
+    infraHeading: 'Who can see your IP address',
+    infraBody:
+      'Loading any website reveals your IP address to whoever serves it — that is how the web works, not a choice this app makes. Two providers are involved in serving WirdStack. Neither receives your habits or your location:',
+    sentFontsName: 'Google Fonts (fonts.googleapis.com)',
+    sentFontsDetail: 'serves the typefaces the app is set in.',
+    sentHostingName: 'Vercel',
+    sentHostingDetail: 'hosts the site and keeps standard server request logs.',
+
+    precisionHeading: 'About your location',
+    precisionBody:
+      'The app asks your browser for a location only when you grant permission, and you can refuse — it will fall back to Makkah and say so. Before any coordinates are sent, they are rounded to two decimal places, roughly a 1km area. That is more than accurate enough for prayer times, which shift by about a minute every 20km, and it means the precise fix your device produced never leaves it.',
+
+    neverHeading: 'What we never do',
+    neverBody:
+      'No accounts. No tracking or analytics of any kind. No cookies. No advertising. Nothing is sold or shared, because nothing is collected in the first place.',
+
+    controlHeading: 'Your control',
+    controlBody:
+      'You can revoke location permission at any time in your browser settings. Clearing your browser’s site data for WirdStack erases everything the app has stored, immediately and permanently — so export a backup first if you want to keep your history. Because there are no accounts, there is no data of yours held anywhere for us to delete on request.',
+
+    contactHeading: 'Contact',
+    contactBody: 'Questions about this policy can be sent to {email}.',
+  },
+
   notFound: {
     title: 'This page doesn’t exist',
     body: 'The link may be out of date, or the habit it pointed to has since been deleted.',
@@ -279,6 +330,7 @@ export default {
     editHabit: 'Edit habit',
     stats: 'Stats',
     notFound: 'Not found',
+    privacy: 'Privacy',
   },
 
   landing: {

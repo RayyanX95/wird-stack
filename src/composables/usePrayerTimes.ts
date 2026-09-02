@@ -107,7 +107,9 @@ const cityLabel = ref<string | null>(savedCoords?.city ?? null);
 /** Best-effort — a failed or slow lookup just leaves the coordinate label in place. */
 async function loadCityLabel(target: Coords, persist: boolean) {
   try {
-    const url = `${GEOCODE_API}?latitude=${target.latitude}&longitude=${target.longitude}&localityLanguage=en`;
+    const url =
+      `${GEOCODE_API}?latitude=${coarse(target.latitude)}` +
+      `&longitude=${coarse(target.longitude)}&localityLanguage=en`;
     const res = await fetch(url);
     if (!res.ok) return;
 
@@ -153,15 +155,28 @@ function apiDate(d: Date): string {
   return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
 }
 
-/** Coordinates are cached to ~1km so a slightly different GPS fix still hits the cache. */
+/**
+ * Two decimal places — roughly 1.1km — is the precision this app works in.
+ *
+ * The browser hands back a GPS fix with about seven decimals, which is
+ * sub-metre: precise enough to identify a specific building. Prayer times move
+ * by about a minute per 20km, so that precision buys nothing and is worth
+ * nobody's while to send to a third party. Everything that leaves the device
+ * goes through here first, and the cache key uses the same rounding, so a
+ * slightly different fix still hits the cache.
+ */
+function coarse(value: number): string {
+  return value.toFixed(2);
+}
+
 function cacheKey(dateIso: string): string {
-  return `${dateIso}|${coords.value.latitude.toFixed(2)}|${coords.value.longitude.toFixed(2)}|${method.value}`;
+  return `${dateIso}|${coarse(coords.value.latitude)}|${coarse(coords.value.longitude)}|${method.value}`;
 }
 
 async function fetchTimings(date: Date): Promise<PrayerTimes> {
   const url =
-    `${API}/${apiDate(date)}?latitude=${coords.value.latitude}` +
-    `&longitude=${coords.value.longitude}&method=${method.value}`;
+    `${API}/${apiDate(date)}?latitude=${coarse(coords.value.latitude)}` +
+    `&longitude=${coarse(coords.value.longitude)}&method=${method.value}`;
   const res = await fetch(url);
   if (!res.ok) throw new LocalizedError('prayerTimes.serviceError', { status: res.status });
 

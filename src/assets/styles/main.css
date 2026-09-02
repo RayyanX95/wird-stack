@@ -752,8 +752,14 @@ button.day-pill.selected:active {
 .back-link:hover {
   color: var(--accent);
 }
+/* The ← glyph is Bidi_Mirrored, so the browser flips it to → under dir="rtl"
+   on its own. The hover nudge is not — it has to be mirrored by hand, or the
+   arrow slides away from the direction it points in Arabic. */
 .back-link:hover::before {
   transform: translateX(-3px);
+}
+[dir='rtl'] .back-link:hover::before {
+  transform: translateX(3px);
 }
 
 /* stat cards — current/longest streak on habit detail */

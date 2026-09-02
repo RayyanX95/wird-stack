@@ -14,6 +14,7 @@ const HabitsView = () => import('@/views/HabitsView.vue');
 const HabitDetails = () => import('@/views/HabitDetails.vue');
 const NewHabitView = () => import('@/views/NewHabitView.vue');
 const StatsView = () => import('@/views/StatsView.vue');
+const PrivacyView = () => import('@/views/PrivacyView.vue');
 const NotFoundView = () => import('@/views/NotFoundView.vue');
 
 /**
@@ -64,6 +65,14 @@ const routes = [
     name: 'stats',
     component: StatsView,
     meta: { titleKey: 'routes.stats' },
+  },
+  // Bare, like the landing page: a legal document reached from the footer
+  // shouldn't arrive wrapped in the habit-tracking chrome.
+  {
+    path: '/privacy',
+    name: 'privacy',
+    component: PrivacyView,
+    meta: { layout: 'bare', titleKey: 'routes.privacy' },
   },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundView, meta: { titleKey: 'routes.notFound' } },
 ];

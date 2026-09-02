@@ -188,6 +188,9 @@ const FEATURES = [
 
     <footer class="landing-footer">
       <span class="text-caption">{{ t('landing.footer') }}</span>
+      <RouterLink to="/privacy" class="text-caption footer-link">
+        {{ t('privacy.title') }}
+      </RouterLink>
     </footer>
   </div>
 </template>
@@ -571,6 +574,20 @@ const FEATURES = [
   padding: var(--space-8) var(--pad-x) var(--space-10);
   text-align: center;
   border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.footer-link {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--transition-fast);
+}
+.footer-link:hover {
+  color: var(--accent);
 }
 
 @media (max-width: 720px) {
