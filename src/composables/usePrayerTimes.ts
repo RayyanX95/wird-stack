@@ -50,6 +50,21 @@ export type TimesStatus = 'idle' | 'locating' | 'loading' | 'ready' | 'error';
 
 export type PrayerTimes = Record<Prayer, string>;
 
+/**
+ * Thrown instead of a plain Error so a failure carries an i18n key rather
+ * than a resolved sentence — `error` (below) re-resolves it live, so a
+ * language switch after a failed fetch doesn't leave the message stranded in
+ * whichever locale was active when the request failed.
+ */
+class LocalizedError extends Error {
+  constructor(
+    public i18nKey: string,
+    public i18nParams?: Record<string, unknown>,
+  ) {
+    super(i18nKey);
+  }
+}
+
 interface Coords {
   latitude: number;
   longitude: number;
@@ -82,7 +97,8 @@ const savedCoords = readJson<SavedLocation>(COORDS_KEY);
 const coords = ref<Coords>(savedCoords ?? FALLBACK);
 const source = ref<TimesSource>(savedCoords ? 'saved' : 'fallback');
 const status = ref<TimesStatus>('idle');
-const error = ref<string | null>(null);
+/** The failure as an i18n key + params, not a resolved string — see LocalizedError. */
+const errorKey = ref<{ key: string; params?: Record<string, unknown> } | null>(null);
 const method = ref<number>(readJson<number>(METHOD_KEY) ?? 2);
 
 /** City name for the current coordinates, once resolved. Null while pending or on geocode failure. */
@@ -147,11 +163,11 @@ async function fetchTimings(date: Date): Promise<PrayerTimes> {
     `${API}/${apiDate(date)}?latitude=${coords.value.latitude}` +
     `&longitude=${coords.value.longitude}&method=${method.value}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error(t('prayerTimes.serviceError', { status: res.status }));
+  if (!res.ok) throw new LocalizedError('prayerTimes.serviceError', { status: res.status });
 
   const body = (await res.json()) as { data?: { timings?: Record<string, string> } };
   const timings = body.data?.timings;
-  if (!timings) throw new Error(t('prayerTimes.unexpectedShape'));
+  if (!timings) throw new LocalizedError('prayerTimes.unexpectedShape');
 
   return Object.fromEntries(
     PRAYERS.map((p) => [p, parseTime(timings[p] ?? '')]),
@@ -176,7 +192,7 @@ async function load() {
   }
 
   status.value = 'loading';
-  error.value = null;
+  errorKey.value = null;
   try {
     const [todayTimes, tomorrowTimes] = await Promise.all([
       fetchTimings(today),
@@ -200,14 +216,15 @@ async function load() {
     } else {
       status.value = 'error';
     }
-    error.value = e instanceof Error ? e.message : t('prayerTimes.loadFailed');
+    errorKey.value =
+      e instanceof LocalizedError ? { key: e.i18nKey, params: e.i18nParams } : { key: 'prayerTimes.loadFailed' };
   }
 }
 
 /** Asks the browser for a location. Safe to call repeatedly — a denial just leaves the fallback in place. */
 function requestLocation(): Promise<void> {
   if (!('geolocation' in navigator)) {
-    error.value = t('prayerTimes.noGeolocation');
+    errorKey.value = { key: 'prayerTimes.noGeolocation' };
     return load();
   }
 
@@ -227,7 +244,9 @@ function requestLocation(): Promise<void> {
       },
       () => {
         // Denied or timed out — keep whatever coordinates we already had.
-        error.value = t('prayerTimes.locationUnavailable', { city: t('prayerTimes.fallbackCity') });
+        // No `city` param here: it's resolved fresh in the `error` computed
+        // below, not baked in now, so it re-localizes along with everything else.
+        errorKey.value = { key: 'prayerTimes.locationUnavailable' };
         void load().then(resolve);
       },
       { timeout: 8000, maximumAge: 60 * 60 * 1000 },
@@ -269,6 +288,14 @@ function ensureLoaded(autoLocate: boolean) {
 
 export function usePrayerTimes(now = ref(new Date()), options: { autoLocate?: boolean } = {}) {
   ensureLoaded(options.autoLocate ?? false);
+
+  /** Resolved live from errorKey, so it re-localizes on a language switch instead of staying frozen. */
+  const error = computed(() => {
+    if (!errorKey.value) return null;
+    const { key, params } = errorKey.value;
+    if (key === 'prayerTimes.locationUnavailable') return t(key, { city: t('prayerTimes.fallbackCity') });
+    return params ? t(key, params) : t(key);
+  });
 
   const usingFallbackLocation = computed(() => source.value === 'fallback');
   const locationLabel = computed(() => {

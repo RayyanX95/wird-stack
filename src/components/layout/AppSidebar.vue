@@ -63,8 +63,10 @@ function isNavActive(to: string) {
         <Icon icon="lucide:plus" aria-hidden="true" />
         {{ t('nav.newHabit') }}
       </RouterLink>
-      <ThemeToggle />
-      <LocaleToggle />
+      <div class="rail-toggles">
+        <ThemeToggle />
+        <LocaleToggle />
+      </div>
     </div>
   </aside>
 
@@ -219,8 +221,18 @@ function isNavActive(to: string) {
   background: var(--accent);
 }
 
+/* Two rows, not one: "New habit" and its Arabic counterpart "وِرد جديد" are
+   different lengths, and squeezing either one down to fit beside two icon
+   buttons is what was wrapping the label onto two lines. Stacking gives the
+   button the full rail width to work with in both languages. */
 .rail-foot {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.rail-toggles {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -233,7 +245,7 @@ function isNavActive(to: string) {
 }
 
 .new-btn {
-  flex: 1;
+  width: 100%;
   font-size: var(--text-sm);
 }
 

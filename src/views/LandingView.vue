@@ -317,7 +317,9 @@ const FEATURES = [
   max-width: 380px;
   margin-top: var(--space-6);
   padding: var(--space-5);
-  text-align: left;
+  /* Logical: this was a hard "left" that pinned the card's paragraph text to
+     the left in Arabic too, fighting the RTL layout everywhere else in it. */
+  text-align: start;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
@@ -452,10 +454,13 @@ const FEATURES = [
   border-color: rgba(var(--accent-rgb), 0.3);
 }
 
+/* Logical, not physical: the icon below it aligns to the block start (right
+   in Arabic), so the number has to sit at the opposite corner — inline-end —
+   in both directions or the two collide in RTL. */
 .step-number {
   position: absolute;
   top: var(--space-5);
-  right: var(--space-5);
+  inset-inline-end: var(--space-5);
   font-size: var(--text-xs);
   color: var(--text-faint);
 }
