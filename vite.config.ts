@@ -47,6 +47,10 @@ export default defineConfig({
         // Every route is client-side, so any offline navigation has to resolve
         // to the shell — the same job wrangler.jsonc's not_found_handling does when online.
         navigateFallback: '/index.html',
+        // ...except for the crawler files, which are real documents. Without
+        // this, opening /sitemap.xml in a browser with the SW active would
+        // serve the app shell instead of the XML.
+        navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.txt$/, /^\/og-image\.png$/],
         runtimeCaching: [
           {
             // Font CSS changes rarely but does change; serve cached, refresh behind.

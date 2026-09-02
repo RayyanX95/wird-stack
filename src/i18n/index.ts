@@ -26,14 +26,14 @@ export function isRtl(locale: AppLocale): boolean {
   return RTL_LOCALES.has(locale);
 }
 
-function isSupported(value: string | null | undefined): value is AppLocale {
+export function isSupportedLocale(value: string | null | undefined): value is AppLocale {
   return !!value && (SUPPORTED_LOCALES as readonly string[]).includes(value);
 }
 
 export function detectLocale(): AppLocale {
   try {
     const saved = localStorage.getItem(LOCALE_STORAGE_KEY);
-    if (isSupported(saved)) return saved;
+    if (isSupportedLocale(saved)) return saved;
   } catch {
     // Storage blocked — fall through to the browser's own preference.
   }
@@ -41,7 +41,7 @@ export function detectLocale(): AppLocale {
   // `navigator.language` is a full tag ("ar-SA", "en-GB"); only the primary
   // subtag is meaningful here.
   const browser = typeof navigator !== 'undefined' ? navigator.language.split('-')[0] : undefined;
-  return isSupported(browser) ? browser : 'en';
+  return isSupportedLocale(browser) ? browser : 'en';
 }
 
 const i18n = createI18n({

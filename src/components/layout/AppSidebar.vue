@@ -13,11 +13,13 @@ import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import ThemeToggle from '../ThemeToggle.vue';
 import LocaleToggle from '../LocaleToggle.vue';
+import { useLocale } from '@/composables';
 
 const logoSvg = logoRaw.replace(/<!--[\s\S]*?-->/g, '').trim();
 
 const route = useRoute();
 const { t } = useI18n();
+const { localePath } = useLocale();
 
 // One nav definition renders twice — as the desktop rail and as the mobile tab
 // bar — so the two can't fall out of sync. `labelKey` rather than a literal so
@@ -40,7 +42,7 @@ function isNavActive(to: string) {
 <template>
   <!-- Desktop rail. Hidden below the tab-bar breakpoint. -->
   <aside class="sidebar">
-    <RouterLink to="/" class="brand">
+    <RouterLink :to="localePath()" class="brand">
       <span class="brand-mark" aria-hidden="true" v-html="logoSvg" />
       WirdStack
     </RouterLink>
@@ -73,7 +75,7 @@ function isNavActive(to: string) {
   <!-- Mobile chrome: a slim top bar for identity, a bottom tab bar for reach.
        Both are display:none above the breakpoint. -->
   <header class="topbar">
-    <RouterLink to="/" class="brand">
+    <RouterLink :to="localePath()" class="brand">
       <span class="brand-mark" aria-hidden="true" v-html="logoSvg" />
       WirdStack
     </RouterLink>

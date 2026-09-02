@@ -39,6 +39,19 @@ export function setLocale(next: AppLocale) {
   apply(next);
 }
 
+/**
+ * Builds a path on the locale-prefixed public routes: `localePath()` → `/ar`,
+ * `localePath('/privacy')` → `/ar/privacy`.
+ *
+ * Only for the public pages. App routes (`/today`, `/habits`) carry no locale
+ * segment by design — see the note in router/index.ts. Linking to bare `/` or
+ * `/privacy` still works via redirects, but costs an extra hop and leaves the
+ * address bar changing under the user, so prefer this in templates.
+ */
+export function localePath(suffix = '') {
+  return `/${locale.value}${suffix}`;
+}
+
 /** Flips between the two supported locales — for the single-button switcher. */
 export function toggleLocale() {
   const i = SUPPORTED_LOCALES.indexOf(locale.value);
@@ -51,5 +64,5 @@ export function initLocale() {
 }
 
 export function useLocale() {
-  return { locale, isRtlLocale, setLocale, toggleLocale };
+  return { locale, isRtlLocale, setLocale, toggleLocale, localePath };
 }

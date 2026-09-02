@@ -17,7 +17,7 @@ import { gregorianLabel } from '@/utils';
  * English for an Arabic reader is not a policy they can act on.
  */
 const { t } = useI18n();
-const { locale } = useLocale();
+const { locale, localePath } = useLocale();
 
 // The date this policy was last materially changed. Hardcoded on purpose:
 // "last updated" must reflect edits to the text, not today's date, or it is
@@ -63,7 +63,7 @@ const stored = computed(() =>
 <template>
   <div class="view privacy-page">
     <!-- The arrow comes from the global .back-link::before in main.css. -->
-    <RouterLink to="/" class="back-link">{{ t('privacy.back') }}</RouterLink>
+    <RouterLink :to="localePath()" class="back-link">{{ t('privacy.back') }}</RouterLink>
 
     <header class="privacy-header">
       <h1 class="text-title">{{ t('privacy.title') }}</h1>

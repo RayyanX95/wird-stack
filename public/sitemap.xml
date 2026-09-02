@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Only the public pages. The app routes are deliberately absent (and excluded
+  in robots.txt) — they render per-user local data and have nothing to index.
+
+  Each URL declares its counterpart via xhtml:link hreflang so Google treats
+  /en and /ar as translations of one page rather than duplicates competing
+  with each other. Note each entry must list *itself* as well as its
+  alternates, which is why en and ar both appear under both URLs.
+-->
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml"
+>
+  <url>
+    <loc>https://wird-stack.ibrahim-alrayany.workers.dev/en</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://wird-stack.ibrahim-alrayany.workers.dev/en"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://wird-stack.ibrahim-alrayany.workers.dev/ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://wird-stack.ibrahim-alrayany.workers.dev/en"/>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://wird-stack.ibrahim-alrayany.workers.dev/ar</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://wird-stack.ibrahim-alrayany.workers.dev/en"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://wird-stack.ibrahim-alrayany.workers.dev/ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://wird-stack.ibrahim-alrayany.workers.dev/en"/>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://wird-stack.ibrahim-alrayany.workers.dev/en/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://wird-stack.ibrahim-alrayany.workers.dev/en/privacy"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://wird-stack.ibrahim-alrayany.workers.dev/ar/privacy"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://wird-stack.ibrahim-alrayany.workers.dev/en/privacy"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://wird-stack.ibrahim-alrayany.workers.dev/ar/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://wird-stack.ibrahim-alrayany.workers.dev/en/privacy"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://wird-stack.ibrahim-alrayany.workers.dev/ar/privacy"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://wird-stack.ibrahim-alrayany.workers.dev/en/privacy"/>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>

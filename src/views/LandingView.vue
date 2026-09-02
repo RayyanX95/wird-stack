@@ -10,7 +10,7 @@ import { useHabitsStore } from '@/stores/habits';
 import { vReveal } from '@/directives/reveal';
 
 const { t } = useI18n();
-const { isRtlLocale } = useLocale();
+const { isRtlLocale, localePath } = useLocale();
 
 // The hero card shows the visitor's *own* next prayer, not a screenshot of
 // someone else's. It's the fastest way to make the premise concrete: the app
@@ -51,7 +51,7 @@ const FEATURES = [
 <template>
   <div class="landing">
     <header class="landing-nav">
-      <RouterLink to="/" class="brand">
+      <RouterLink :to="localePath()" class="brand">
         <span class="brand-dot" aria-hidden="true" />
         WirdStack
       </RouterLink>
@@ -188,7 +188,7 @@ const FEATURES = [
 
     <footer class="landing-footer">
       <span class="text-caption">{{ t('landing.footer') }}</span>
-      <RouterLink to="/privacy" class="text-caption footer-link">
+      <RouterLink :to="localePath('/privacy')" class="text-caption footer-link">
         {{ t('privacy.title') }}
       </RouterLink>
     </footer>

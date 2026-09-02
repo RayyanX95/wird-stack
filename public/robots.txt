@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# The app routes render the visitor's own localStorage — a crawler sees an
+# empty first-run state, so there is nothing there worth indexing, and an
+# indexed /today would be a confusing search result for a page that is
+# different for every person.
+Disallow: /today
+Disallow: /habits
+Disallow: /stats
+
+Sitemap: https://wird-stack.ibrahim-alrayany.workers.dev/sitemap.xml
