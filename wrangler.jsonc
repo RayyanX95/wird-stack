@@ -15,8 +15,14 @@
   // that fight isn't necessary.
   "name": "wird-stack",
   "compatibility_date": "2026-09-02",
+  // The Worker exists for one job: rewriting per-locale social preview tags
+  // for crawlers that don't run JavaScript. See worker/index.ts. Everything
+  // else streams straight through from the assets binding.
+  "main": "./worker/index.ts",
   "assets": {
     "directory": "./dist",
     "not_found_handling": "single-page-application",
+    // Lets the Worker fetch a built asset and transform it before returning.
+    "binding": "ASSETS",
   },
 }

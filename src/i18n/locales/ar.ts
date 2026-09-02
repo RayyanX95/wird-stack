@@ -37,6 +37,12 @@
 export default {
   brand: 'WirdStack',
 
+  // يستهلكها worker/index.ts لإعادة كتابة وسوم og:‎ حسب اللغة.
+  seo: {
+    title: 'WirdStack — أعمالٌ صغيرة تدوم كل يوم',
+    description: 'اقرِن عملًا صغيرًا بكل صلاة تصلّيها. مجانًا، بدون حساب، ويعمل دون اتصال.',
+  },
+
   common: {
     close: 'إغلاق',
     cancel: 'إلغاء',

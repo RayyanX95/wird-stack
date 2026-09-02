@@ -12,6 +12,15 @@
 export default {
   brand: 'WirdStack',
 
+  // Consumed by worker/index.ts to rewrite og:/meta tags per locale at the
+  // edge, since non-JS social crawlers never see anything Vue renders.
+  // Kept here rather than duplicated in the worker so the two can't drift.
+  seo: {
+    title: 'WirdStack — small acts, kept up daily',
+    description:
+      'Anchor one small act to each prayer you already pray. Free, no account, works offline.',
+  },
+
   common: {
     close: 'Close',
     cancel: 'Cancel',
