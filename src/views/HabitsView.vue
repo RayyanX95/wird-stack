@@ -2,16 +2,25 @@
 import { computed, ref } from 'vue';
 import { Icon } from '@iconify/vue';
 import { useI18n } from 'vue-i18n';
-import { HabitRow } from '@/components';
+import { HabitRow, ModalComponent } from '@/components';
 import { useLocale } from '@/composables';
 import { useHabitsStore } from '@/stores/habits';
 import type { HabitItem } from '@/types';
 import { WEEKDAY_DISPLAY_ORDER } from '@/types';
+import { buildBackup, downloadBackup, parseBackup, type Backup } from '@/utils';
 
 const { t } = useI18n();
 const { locale } = useLocale();
-const { habits, isCompletedToday, isScheduledToday, currentStreak, isNewHabit, toggleComplete } =
-  useHabitsStore();
+const {
+  habits,
+  completions,
+  isCompletedToday,
+  isScheduledToday,
+  currentStreak,
+  isNewHabit,
+  toggleComplete,
+  replaceAll,
+} = useHabitsStore();
 
 type Filter = 'all' | 'active' | 'paused';
 const FILTERS: Filter[] = ['all', 'active', 'paused'];
@@ -88,6 +97,43 @@ const rows = computed(() =>
 );
 
 const pausedCount = computed(() => habits.filter((h) => h.paused).length);
+
+/* ---------- Backup & restore ---------- */
+
+const fileInput = ref<HTMLInputElement | null>(null);
+// Held between validation and the user confirming the overwrite.
+const pendingRestore = ref<Backup | null>(null);
+const restoreError = ref<string | null>(null);
+
+function onExport() {
+  downloadBackup(buildBackup(habits, completions));
+}
+
+async function onFilePicked(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  // Reset immediately so picking the same file twice in a row still fires
+  // `change` — otherwise a failed restore can't be retried without reloading.
+  input.value = '';
+  if (!file) return;
+
+  restoreError.value = null;
+  const result = parseBackup(await file.text());
+
+  if (!result.ok) {
+    restoreError.value = t(`habits.backup.error.${result.reason}`);
+    return;
+  }
+  // Validated, but not applied until the user confirms — restoring replaces
+  // everything they currently have.
+  pendingRestore.value = result.backup;
+}
+
+function onConfirmRestore() {
+  if (!pendingRestore.value) return;
+  replaceAll(pendingRestore.value.habits, pendingRestore.value.completions);
+  pendingRestore.value = null;
+}
 </script>
 
 <template>
@@ -157,6 +203,53 @@ const pausedCount = computed(() => habits.filter((h) => h.paused).length);
         </template>
       </HabitRow>
     </TransitionGroup>
+
+    <!-- Kept in a <details> like the calculation-method picker on Today: a
+         safety net most people touch twice a year shouldn't cost anything
+         visually until they go looking for it. -->
+    <details class="backup">
+      <summary class="text-caption">{{ t('habits.backup.title') }}</summary>
+
+      <p class="text-meta backup-note">{{ t('habits.backup.note') }}</p>
+
+      <div class="backup-actions">
+        <button type="button" class="btn ghost" :disabled="habits.length === 0" @click="onExport">
+          <Icon icon="lucide:download" aria-hidden="true" />
+          {{ t('habits.backup.export') }}
+        </button>
+        <button type="button" class="btn ghost" @click="fileInput?.click()">
+          <Icon icon="lucide:upload" aria-hidden="true" />
+          {{ t('habits.backup.import') }}
+        </button>
+        <input
+          ref="fileInput"
+          type="file"
+          accept="application/json,.json"
+          class="sr-only"
+          @change="onFilePicked"
+        />
+      </div>
+
+      <p v-if="restoreError" class="field-error backup-error">{{ restoreError }}</p>
+    </details>
+
+    <!-- Restoring is destructive, so it is confirmed with the actual numbers
+         rather than a generic "are you sure?". -->
+    <ModalComponent
+      :open="pendingRestore !== null"
+      :title="t('habits.backup.confirmTitle')"
+      :message="
+        t('habits.backup.confirmBody', {
+          incoming: pendingRestore?.habits.length ?? 0,
+          current: habits.length,
+        })
+      "
+      :close-btn-label="t('common.cancel')"
+      :success-btn-label="t('habits.backup.confirmAction')"
+      variant="error"
+      @update:open="(open: boolean) => { if (!open) pendingRestore = null; }"
+      @success="onConfirmRestore"
+    />
   </div>
 </template>
 
@@ -167,6 +260,36 @@ const pausedCount = computed(() => habits.filter((h) => h.paused).length);
 
 .new-btn {
   flex-shrink: 0;
+}
+
+/* Mirrors .method-picker on Today so the two "tucked away" sections read as
+   the same kind of thing. */
+.backup {
+  margin-top: var(--space-6);
+}
+.backup summary {
+  cursor: pointer;
+  color: var(--text-faint);
+  width: fit-content;
+}
+.backup summary:hover {
+  color: var(--accent);
+}
+
+.backup-note {
+  margin: var(--space-3) 0 0;
+  max-width: 52ch;
+}
+
+.backup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.backup-error {
+  margin-top: var(--space-3);
 }
 
 .habit-list {

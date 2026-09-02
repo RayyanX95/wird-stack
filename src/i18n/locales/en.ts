@@ -167,6 +167,21 @@ export default {
     notScheduledRowLabel: '{title} — not scheduled today',
     resumeToCheck: 'Resume this habit to check it off',
     notScheduledToday: 'Not scheduled today',
+    backup: {
+      title: 'Backup & restore',
+      note: 'Your habits live only in this browser. Export a file to keep them safe, or to move them to another device.',
+      export: 'Export backup',
+      import: 'Restore from file',
+      confirmTitle: 'Replace everything?',
+      confirmBody:
+        'Restoring will replace your current {current} habits with the {incoming} in this file, along with all their history. This can’t be undone.',
+      confirmAction: 'Replace',
+      error: {
+        malformed: 'That file is a WirdStack backup but it’s damaged and can’t be read.',
+        'not-wirdstack': 'That doesn’t look like a WirdStack backup file.',
+        'too-new': 'That backup was made by a newer version of WirdStack. Update the app first.',
+      },
+    },
   },
 
   habitForm: {

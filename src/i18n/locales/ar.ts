@@ -203,6 +203,21 @@ export default {
     notScheduledRowLabel: '{title} — غير مجدول اليوم',
     resumeToCheck: 'استأنف هذا الوِرد لتتمكن من تعليمه',
     notScheduledToday: 'غير مجدول اليوم',
+    backup: {
+      title: 'النسخ الاحتياطي والاستعادة',
+      note: 'أورادك محفوظة في هذا المتصفح وحده. صدّر ملفًا لتحفظها، أو لتنقلها إلى جهاز آخر.',
+      export: 'تصدير نسخة',
+      import: 'استعادة من ملف',
+      confirmTitle: 'استبدال كل شيء؟',
+      confirmBody:
+        'ستحل الأوراد الموجودة في هذا الملف ({incoming}) محل أورادك الحالية ({current}) وسجلّها كاملًا. لا يمكن التراجع عن ذلك.',
+      confirmAction: 'استبدال',
+      error: {
+        malformed: 'هذا ملف نسخة من WirdStack لكنه تالف ولا يمكن قراءته.',
+        'not-wirdstack': 'لا يبدو أن هذا ملف نسخة احتياطية من WirdStack.',
+        'too-new': 'أُنشئت هذه النسخة بإصدار أحدث من WirdStack. حدّث التطبيق أولًا.',
+      },
+    },
   },
 
   habitForm: {

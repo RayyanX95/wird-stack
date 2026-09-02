@@ -54,6 +54,22 @@ export const useHabitsStore = defineStore(
       }
     };
 
+    /**
+     * Replaces the entire log with a restored backup.
+     *
+     * Deliberately a replace, not a merge. Merging two logs means resolving id
+     * collisions and deciding what a "conflict" even is for a completion —
+     * real work that would need a real sync design. A replace is honest about
+     * what it does, and the UI confirms it destructively before calling this.
+     *
+     * Splice rather than reassign so the persist plugin sees a mutation on the
+     * same ref it hydrated (see the note on `habits` above).
+     */
+    const replaceAll = (nextHabits: HabitItem[], nextCompletions: Completion[]) => {
+      habits.value.splice(0, habits.value.length, ...nextHabits);
+      completions.value.splice(0, completions.value.length, ...nextCompletions);
+    };
+
     const getHabitById = (id: string) => {
       if (!id) return null;
 
@@ -203,6 +219,7 @@ export const useHabitsStore = defineStore(
       updateHabit,
       togglePause,
       deleteHabit,
+      replaceAll,
       getHabitById,
       isCompletedOn,
       isCompletedToday,
