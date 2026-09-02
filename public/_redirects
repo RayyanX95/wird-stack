@@ -1,0 +1,5 @@
+# Every route is client-side (vue-router, history mode), so any path Cloudflare
+# doesn't recognize as a real file has to resolve to the shell. This is the
+# Cloudflare Pages equivalent of vercel.json's catch-all rewrite — without it,
+# a hard reload on e.g. /today 404s because there is no file at that path.
+/*  /index.html  200

@@ -45,7 +45,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,ico,woff2}'],
         // Every route is client-side, so any offline navigation has to resolve
-        // to the shell — the same job vercel.json's rewrite does when online.
+        // to the shell — the same job public/_redirects does when online.
         navigateFallback: '/index.html',
         runtimeCaching: [
           {

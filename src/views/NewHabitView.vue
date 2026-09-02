@@ -6,7 +6,6 @@ import { useI18n } from 'vue-i18n';
 import type { Prayer, WeekDay } from '@/types';
 import { PRAYERS, WEEKDAY_DISPLAY_ORDER } from '@/types';
 import { habitSchema, type HabitFormValues } from './schema';
-import { trackEvent } from '@/utils';
 import { useHabitsStore } from '@/stores/habits';
 import { ModalComponent } from '@/components';
 
@@ -74,9 +73,6 @@ function handleSubmit() {
     updateHabit(habit.value.id, result.data);
   } else {
     onAddHabit(result.data);
-    // The activation milestone: page views can show someone reached this form,
-    // not that they finished it. Carries no detail about the habit itself.
-    trackEvent('habit_created');
     resetForm();
   }
   showSuccessModal.value = true;

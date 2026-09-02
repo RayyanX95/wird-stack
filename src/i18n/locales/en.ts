@@ -295,7 +295,7 @@ export default {
       'Loading any website reveals your IP address to whoever serves it — that is how the web works, not a choice this app makes. Two providers are involved in serving WirdStack. Neither receives your habits or your location:',
     sentFontsName: 'Google Fonts (fonts.googleapis.com)',
     sentFontsDetail: 'serves the typefaces the app is set in.',
-    sentHostingName: 'Vercel',
+    sentHostingName: 'Cloudflare Pages',
     sentHostingDetail: 'hosts the site and keeps standard server request logs.',
 
     precisionHeading: 'About your location',
@@ -304,7 +304,7 @@ export default {
 
     analyticsHeading: 'Analytics',
     analyticsBody:
-      'We count page views through Vercel Web Analytics, to know whether the app is being used at all. It sets no cookies, does not follow you to any other site, and records nothing about your habits — only that a page was opened, roughly which country from, and what kind of device. The numbers are aggregate: there is no per-person profile to look at, including for us.',
+      'We count page views through Cloudflare Web Analytics, to know whether the app is being used at all. It sets no cookies, does not follow you to any other site, and records nothing about your habits — only that a page was opened, roughly which country from, and what kind of device. The numbers are aggregate: there is no per-person profile to look at, including for us.',
 
     neverHeading: 'What we never do',
     neverBody:
