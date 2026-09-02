@@ -97,10 +97,14 @@ export default {
     fallbackLocation: 'Showing prayer times for {location}.',
     useMyLocation: 'Use my location',
     timesUnavailable: 'Prayer times are unavailable right now.',
+    // True first run: no habits exist anywhere yet.
+    firstRunTitle: 'Nothing stacked yet',
+    firstRunBody: 'Pick a prayer you already pray and attach one small act to it — that’s the whole method.',
+    // Habits exist, just none scheduled today (all paused, or all run on other days).
     emptyTitle: 'Nothing due today',
-    emptyBody:
-      'Stack one small act onto a prayer you already pray, and it will show up here tomorrow.',
+    emptyBody: 'No habit is scheduled for today. Check the days it runs, or add another.',
     createFirst: 'Create your first habit',
+    addAnother: 'Add another habit',
     methodPicker: 'Prayer time calculation method',
     ringLabel: '{value} of {total} habits done today',
   },

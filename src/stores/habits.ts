@@ -1,14 +1,14 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { mockCompletions, mockHabits } from '@/mocks';
-import type { AddHabitPayload, HabitDayState, HabitItem } from '@/types';
+import type { AddHabitPayload, Completion, HabitDayState, HabitItem } from '@/types';
 import { fromIso, toIso, weekDayOf } from '@/utils';
 
 export const useHabitsStore = defineStore(
   'habits',
   () => {
-    // Seed defaults only — pinia-plugin-persistedstate (see `persist` below)
-    // owns reading from and writing to localStorage from here on.
+    // Empty defaults — a fresh install has no habits and no history. Beyond
+    // this line, pinia-plugin-persistedstate (see `persist` below) owns
+    // reading from and writing to localStorage.
     //
     // These must be `ref`s, not `reactive` arrays: the persist plugin
     // rehydrates via `store.$patch`, which for a setup store's plain
@@ -18,8 +18,8 @@ export const useHabitsStore = defineStore(
     // never sees that swap. A `ref` doesn't have this problem: Vue's
     // ref-unwrapping means `$patch` updates `habits.value` in place on the
     // same ref instance, so hydration is actually visible here.
-    const habits = ref(mockHabits);
-    const completions = ref(mockCompletions);
+    const habits = ref<HabitItem[]>([]);
+    const completions = ref<Completion[]>([]);
 
     const onAddHabit = (payload: AddHabitPayload) => {
       const newHabit: HabitItem = {

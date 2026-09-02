@@ -42,6 +42,12 @@ const dueToday = computed(() =>
   habits.filter((h) => !h.paused && isScheduledToday(h.id)),
 );
 
+// A true first run (no habits exist anywhere) gets its own onboarding
+// message — distinct from "habits exist, just none scheduled today" (every
+// habit paused, or all of them run on other days), which shouldn't repeat the
+// "create your first habit" pitch to someone who already has habits.
+const hasNoHabitsAtAll = computed(() => habits.length === 0);
+
 // A Set rather than calling isCompletedToday() per row: the store scans the
 // whole completion log on each call, and this screen would otherwise do that
 // once per habit per re-render, of which there is one every clock tick.
@@ -137,11 +143,18 @@ const summary = computed(() => {
       <span class="text-meta">{{ error ?? t('today.timesUnavailable') }}</span>
     </div>
 
-    <div v-if="dueToday.length === 0" class="empty-state">
+    <div v-if="hasNoHabitsAtAll" class="empty-state">
+      <div class="empty-icon"><Icon icon="lucide:sparkles" /></div>
+      <h2 class="text-title margin-bottom">{{ t('today.firstRunTitle') }}</h2>
+      <p class="text-subtitle">{{ t('today.firstRunBody') }}</p>
+      <RouterLink to="/habits/new" class="btn primary">{{ t('today.createFirst') }}</RouterLink>
+    </div>
+
+    <div v-else-if="dueToday.length === 0" class="empty-state">
       <div class="empty-icon"><Icon icon="lucide:sunrise" /></div>
       <h2 class="text-title margin-bottom">{{ t('today.emptyTitle') }}</h2>
       <p class="text-subtitle">{{ t('today.emptyBody') }}</p>
-      <RouterLink to="/habits/new" class="btn primary">{{ t('today.createFirst') }}</RouterLink>
+      <RouterLink to="/habits/new" class="btn primary">{{ t('today.addAnother') }}</RouterLink>
     </div>
 
     <div v-else class="groups">
