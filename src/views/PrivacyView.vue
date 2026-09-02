@@ -109,6 +109,11 @@ const stored = computed(() =>
     </section>
 
     <section>
+      <h2 class="section-heading">{{ t('privacy.analyticsHeading') }}</h2>
+      <p class="text-body">{{ t('privacy.analyticsBody') }}</p>
+    </section>
+
+    <section>
       <h2 class="section-heading">{{ t('privacy.neverHeading') }}</h2>
       <p class="text-body">{{ t('privacy.neverBody') }}</p>
     </section>

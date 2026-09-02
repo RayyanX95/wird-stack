@@ -8,6 +8,7 @@ import App from './App.vue';
 import router from './router';
 import { registerSW } from 'virtual:pwa-register';
 import { initLocale, initTheme } from './composables';
+import { initAnalytics } from './utils';
 import { vReveal } from './directives/reveal';
 import i18n from './i18n';
 
@@ -22,6 +23,8 @@ registerSW({ immediate: true });
 // them and keep the theme-color meta tag in step.
 initTheme();
 initLocale();
+// Aggregate page views only, production only — see utils/analytics.ts.
+initAnalytics();
 
 const app = createApp(App);
 

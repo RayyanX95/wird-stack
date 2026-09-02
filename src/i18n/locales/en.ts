@@ -270,7 +270,7 @@ export default {
 
     summaryHeading: 'The short version',
     summaryBody:
-      'WirdStack has no accounts, no analytics, no cookies, and no advertising. Your habits and your history are written to your own browser and are never sent anywhere. The only thing that leaves your device is an approximate location, used to calculate your prayer times.',
+      'WirdStack has no accounts, no cookies, and no advertising. Your habits and your history are written to your own browser and are never sent anywhere. Two things leave your device: an approximate location, used to calculate your prayer times, and an anonymous count of pages opened.',
 
     storedHeading: 'What stays on your device',
     storedBody:
@@ -302,9 +302,13 @@ export default {
     precisionBody:
       'The app asks your browser for a location only when you grant permission, and you can refuse — it will fall back to Makkah and say so. Before any coordinates are sent, they are rounded to two decimal places, roughly a 1km area. That is more than accurate enough for prayer times, which shift by about a minute every 20km, and it means the precise fix your device produced never leaves it.',
 
+    analyticsHeading: 'Analytics',
+    analyticsBody:
+      'We count page views through Vercel Web Analytics, to know whether the app is being used at all. It sets no cookies, does not follow you to any other site, and records nothing about your habits — only that a page was opened, roughly which country from, and what kind of device. The numbers are aggregate: there is no per-person profile to look at, including for us.',
+
     neverHeading: 'What we never do',
     neverBody:
-      'No accounts. No tracking or analytics of any kind. No cookies. No advertising. Nothing is sold or shared, because nothing is collected in the first place.',
+      'No accounts. No cookies. No advertising. No profile of you is built, and nothing is ever sold or shared. Your habits are not part of the page-view counts above and never leave your device.',
 
     controlHeading: 'Your control',
     controlBody:
