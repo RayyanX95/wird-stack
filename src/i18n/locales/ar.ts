@@ -66,6 +66,10 @@ export default {
     newHabit: 'وِرد جديد',
     new: 'جديد',
     main: 'الرئيسية',
+    // "Your opinion matters to us" reads as marketing filler here; the plain
+    // imperative is what an Arabic-speaking user expects from a utility.
+    feedback: 'أرسل ملاحظاتك',
+    feedbackSubject: 'ملاحظات على WirdStack',
   },
 
   prayers: {

@@ -41,6 +41,10 @@ export default {
     newHabit: 'New habit',
     new: 'New',
     main: 'Main',
+    feedback: 'Send feedback',
+    // Prefilled subject: it makes the mail identifiable in an inbox that is
+    // not a dedicated support address.
+    feedbackSubject: 'WirdStack feedback',
   },
 
   // Keyed by the Prayer union in types/habit.ts.

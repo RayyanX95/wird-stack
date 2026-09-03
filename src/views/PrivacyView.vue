@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useLocale } from '@/composables';
+import { CONTACT_EMAIL } from '@/site.config';
 import { gregorianLabel } from '@/utils';
 
 /**
@@ -28,10 +29,9 @@ const updatedLabel = computed(() =>
   t('privacy.updated', { date: gregorianLabel(LAST_UPDATED, locale.value) }),
 );
 
-// A privacy policy needs a monitored address to be actionable under GDPR.
-// Worth moving to a role address (privacy@wirdstack.com) once the domain has
-// mail, so it isn't a personal inbox published on a public page forever.
-const CONTACT_EMAIL = 'ibrahim.alrayany@gmail.com';
+// A privacy policy needs a monitored address to be actionable under GDPR. It
+// lives in site.config.ts because the sidebar's feedback link publishes the
+// same address, and two copies would eventually disagree.
 
 // Name and detail are separate keys so the service name can be emphasised as
 // a real element rather than parsed out of the sentence with v-html.

@@ -9,11 +9,13 @@
 // lands in the DOM on every render.
 import logoRaw from '@/assets/logo.svg?raw';
 import { Icon } from '@iconify/vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import ThemeToggle from '../ThemeToggle.vue';
 import LocaleToggle from '../LocaleToggle.vue';
 import { useLocale } from '@/composables';
+import { CONTACT_EMAIL } from '@/site.config';
 
 const logoSvg = logoRaw.replace(/<!--[\s\S]*?-->/g, '').trim();
 
@@ -37,6 +39,14 @@ const NAV = [
 function isNavActive(to: string) {
   return route.path === to || route.path.startsWith(`${to}/`);
 }
+
+// The app's only inbound channel. A mailto rather than a form because a form
+// needs a backend this app deliberately does not have yet, and because a
+// reply thread is worth more than a one-way submission when the whole point
+// is finding out why someone stopped opening the app.
+const feedbackHref = computed(
+  () => `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(t('nav.feedbackSubject'))}`,
+);
 </script>
 
 <template>
@@ -68,6 +78,14 @@ function isNavActive(to: string) {
       <div class="rail-toggles">
         <ThemeToggle />
         <LocaleToggle />
+        <a
+          class="icon-btn"
+          :href="feedbackHref"
+          :title="t('nav.feedback')"
+          :aria-label="t('nav.feedback')"
+        >
+          <Icon icon="lucide:message-circle" aria-hidden="true" />
+        </a>
       </div>
     </div>
   </aside>
@@ -82,6 +100,14 @@ function isNavActive(to: string) {
     <div class="topbar-actions">
       <ThemeToggle />
       <LocaleToggle />
+      <a
+        class="icon-btn"
+        :href="feedbackHref"
+        :title="t('nav.feedback')"
+        :aria-label="t('nav.feedback')"
+      >
+        <Icon icon="lucide:message-circle" aria-hidden="true" />
+      </a>
     </div>
   </header>
 

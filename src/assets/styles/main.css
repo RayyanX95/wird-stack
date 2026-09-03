@@ -306,6 +306,9 @@ canvas {
   color: var(--text-muted);
   cursor: pointer;
   font-size: var(--text-md);
+  /* The class is used on <a> as well as <button> — the sidebar's feedback
+     link — and an underline under a bare icon renders as a stray rule. */
+  text-decoration: none;
   transition:
     background-color var(--transition-fast),
     color var(--transition-fast),
