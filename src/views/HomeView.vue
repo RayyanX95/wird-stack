@@ -38,9 +38,7 @@ const dateLabel = computed(() => gregorianLabel(now.value, locale.value));
 const hijri = computed(() => hijriLabel(now.value, locale.value));
 
 /** Active habits due today — the denominator for everything on this screen. */
-const dueToday = computed(() =>
-  habits.filter((h) => !h.paused && isScheduledToday(h.id)),
-);
+const dueToday = computed(() => habits.filter((h) => !h.paused && isScheduledToday(h.id)));
 
 // A true first run (no habits exist anywhere) gets its own onboarding
 // message — distinct from "habits exist, just none scheduled today" (every
@@ -56,7 +54,9 @@ const completedIds = computed(
 );
 
 const doneCount = computed(() => completedIds.value.size);
-const allDone = computed(() => dueToday.value.length > 0 && doneCount.value === dueToday.value.length);
+const allDone = computed(
+  () => dueToday.value.length > 0 && doneCount.value === dueToday.value.length,
+);
 
 /**
  * Habits grouped under their anchor prayer, in clock order.
@@ -94,7 +94,10 @@ const summary = computed(() => {
       <div class="today-intro">
         <h1 class="text-title">{{ greeting }}</h1>
         <p class="today-date text-caption">
-          {{ dateLabel }}<template v-if="hijri"> · <span class="hijri">{{ hijri }}</span></template>
+          {{ dateLabel
+          }}<template v-if="hijri">
+            · <span class="hijri">{{ hijri }}</span></template
+          >
         </p>
         <p class="text-subtitle summary">{{ summary }}</p>
       </div>
@@ -174,11 +177,29 @@ const summary = computed(() => {
       />
     </div>
 
-    <!-- Which calculation method is right is a regional question, not a
-         technical one, so it's the user's to answer — kept in a <details> so it
-         costs nothing visually until someone goes looking for it. -->
+    <!-- Location and calculation method are both settings someone sets once and
+         rarely revisits — kept in one <details> so neither costs anything
+         visually until someone goes looking for it. The fallback notice above
+         already surfaces the location prompt when it matters (times aren't the
+         user's own); this is the same control, just reachable any time someone
+         travels or wants a fresh fix rather than only when on the fallback city. -->
     <details class="method-picker">
-      <summary class="text-caption">{{ t('today.methodPicker') }}</summary>
+      <summary class="text-caption">{{ t('today.settingsPicker') }}</summary>
+
+      <div class="location-row">
+        <Icon icon="lucide:map-pin" aria-hidden="true" />
+        <span class="text-meta">{{ locationLabel }}</span>
+        <button
+          type="button"
+          class="btn ghost notice-btn"
+          :disabled="status === 'locating'"
+          @click="requestLocation"
+        >
+          <Icon icon="lucide:refresh-cw" aria-hidden="true" />
+          {{ status === 'locating' ? t('today.locating') : t('today.refreshLocation') }}
+        </button>
+      </div>
+
       <div class="method-options">
         <button
           v-for="id in CALCULATION_METHOD_IDS"
@@ -325,6 +346,17 @@ const summary = computed(() => {
 
 .method-picker {
   margin-top: var(--space-4);
+}
+
+.location-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  color: var(--text-muted);
+}
+.location-row .text-meta {
+  flex: 1;
 }
 .method-picker summary {
   cursor: pointer;

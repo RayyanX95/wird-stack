@@ -99,7 +99,9 @@ const source = ref<TimesSource>(savedCoords ? 'saved' : 'fallback');
 const status = ref<TimesStatus>('idle');
 /** The failure as an i18n key + params, not a resolved string — see LocalizedError. */
 const errorKey = ref<{ key: string; params?: Record<string, unknown> } | null>(null);
-const method = ref<number>(readJson<number>(METHOD_KEY) ?? 2);
+// Umm al-Qura by default — the calculation method most of the app's target
+// audience (Gulf and broader MENA) already follows day to day.
+const method = ref<number>(readJson<number>(METHOD_KEY) ?? 4);
 
 /** City name for the current coordinates, once resolved. Null while pending or on geocode failure. */
 const cityLabel = ref<string | null>(savedCoords?.city ?? null);

@@ -118,7 +118,9 @@ export default {
     emptyBody: 'No habit is scheduled for today. Check the days it runs, or add another.',
     createFirst: 'Create your first habit',
     addAnother: 'Add another habit',
-    methodPicker: 'Prayer time calculation method',
+    settingsPicker: 'Location & calculation method',
+    refreshLocation: 'Refresh',
+    locating: 'Locating…',
     ringLabel: '{value} of {total} habits done today',
   },
 
@@ -204,6 +206,7 @@ export default {
     notFoundTitle: 'Habit not found',
     notFoundBody: 'This habit may have been deleted, or the link you followed is out of date.',
     backToHabits: 'Back to habits',
+    quickStartHeading: 'Or start from one of these',
     fieldTitle: 'Title',
     titlePlaceholder: 'e.g. Read Qur’an',
     fieldAnchor: 'Anchor prayer',
@@ -223,6 +226,18 @@ export default {
       title: 'Title is required',
       minimalVersion: 'Give it a minimal version',
       days: 'Pick at least one day',
+    },
+    // One entry per HABIT_TEMPLATES key. Minimal versions match the sizes the
+    // form's own hint asks for — smaller than feels necessary.
+    templates: {
+      quranAfterFajr: { title: 'Read Qur’an', minimal: '1 verse' },
+      morningAdhkar: { title: 'Morning adhkar', minimal: '1 dua' },
+      dhikrAfterDhuhr: { title: 'Dhikr', minimal: '33 tasbih' },
+      gratitudeAfterAsr: { title: 'Gratitude', minimal: 'Name 1 thing' },
+      istighfarAfterMaghrib: { title: 'Istighfar', minimal: '10 istighfar' },
+      sadaqahAfterMaghrib: { title: 'Sadaqah', minimal: 'One small act' },
+      nightAdhkar: { title: 'Night adhkar', minimal: '1 dua' },
+      fastMonThu: { title: 'Fast (Sunnah)', minimal: 'Mon & Thu' },
     },
   },
 

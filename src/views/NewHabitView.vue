@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n';
 import type { Prayer, WeekDay } from '@/types';
 import { PRAYERS, WEEKDAY_DISPLAY_ORDER } from '@/types';
 import { habitSchema, type HabitFormValues } from './schema';
+import { HABIT_TEMPLATES, type HabitTemplate } from './habitTemplates';
 import { useHabitsStore } from '@/stores/habits';
 import { ModalComponent } from '@/components';
 
@@ -40,6 +41,16 @@ function toggleDay(day: WeekDay) {
   selectedDays.value = selectedDays.value.includes(day)
     ? selectedDays.value.filter((d) => d !== day)
     : [...selectedDays.value, day];
+}
+
+// Prefills the form; does not submit it. A one-tap *create* would deny the
+// user the chance to notice "10 istighfar" isn't their thing and change it to
+// 3 before it becomes their first entry in the log.
+function applyTemplate(template: HabitTemplate) {
+  title.value = t(template.titleKey);
+  anchorPrayer.value = template.anchorPrayer;
+  minimalVersion.value = t(template.minimalKey);
+  selectedDays.value = template.days ? [...template.days] : [...DAYS];
 }
 
 const resetForm = () => {
@@ -107,6 +118,25 @@ function handleSubmit() {
         @success="router.push(isEditing ? `/habits/${habit!.id}` : '/habits')"
         variant="success"
       />
+
+      <!-- Only for a genuinely new habit — editing already has a starting point,
+           and overwriting an edit-in-progress with a template would be a data-loss
+           trap, not a shortcut. -->
+      <div v-if="!isEditing" class="quick-start">
+        <div class="field-label">{{ t('habitForm.quickStartHeading') }}</div>
+        <div class="template-row">
+          <button
+            v-for="template in HABIT_TEMPLATES"
+            :key="template.key"
+            type="button"
+            class="template-chip"
+            @click="applyTemplate(template)"
+          >
+            <Icon :icon="template.icon" class="template-icon" aria-hidden="true" />
+            <span>{{ t(template.titleKey) }}</span>
+          </button>
+        </div>
+      </div>
 
       <form @submit.prevent="handleSubmit">
         <div class="field">
@@ -188,6 +218,47 @@ function handleSubmit() {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+}
+
+.quick-start {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.template-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.template-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+.template-chip:hover {
+  border-color: var(--accent);
+  color: var(--text);
+  background: var(--accent-soft);
+}
+
+.template-icon {
+  font-size: var(--text-md);
+  opacity: 0.75;
+  flex-shrink: 0;
 }
 
 form {

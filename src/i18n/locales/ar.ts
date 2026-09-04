@@ -150,7 +150,9 @@ export default {
     emptyBody: 'لا وِرد مجدول لهذا اليوم — راجع الأيام المحددة له، أو أضِف وِردًا آخر.',
     createFirst: 'ابدأ وِردك الأول',
     addAnother: 'أضِف وِردًا آخر',
-    methodPicker: 'طريقة حساب أوقات الصلاة',
+    settingsPicker: 'الموقع وطريقة الحساب',
+    refreshLocation: 'تحديث',
+    locating: 'جارٍ تحديد الموقع…',
     ringLabel: 'أتممتَ {value} من أصل {total} من أوراد اليوم',
   },
 
@@ -237,6 +239,7 @@ export default {
     notFoundTitle: 'الوِرد غير موجود',
     notFoundBody: 'قد يكون هذا الوِرد قد حُذف، أو أن الرابط الذي اتّبعته لم يعد صالحًا.',
     backToHabits: 'العودة إلى الأوراد',
+    quickStartHeading: 'أو ابدأ من إحدى هذه',
     fieldTitle: 'العنوان',
     titlePlaceholder: 'مثال: قراءة القرآن',
     // A direct question reads better as a field label than an abstract noun
@@ -260,6 +263,18 @@ export default {
       title: 'العنوان مطلوب',
       minimalVersion: 'حدّد أقلّ ما يُجزئ',
       days: 'اختر يومًا واحدًا على الأقل',
+    },
+    // Western numerals, matching the prayer-time readout — see the i18n note
+    // in BUSINESS.md.
+    templates: {
+      quranAfterFajr: { title: 'قراءة القرآن', minimal: 'آية واحدة' },
+      morningAdhkar: { title: 'أذكار الصباح', minimal: 'دعاء واحد' },
+      dhikrAfterDhuhr: { title: 'الذكر', minimal: '33 تسبيحة' },
+      gratitudeAfterAsr: { title: 'الامتنان', minimal: 'اذكر شيئًا واحدًا' },
+      istighfarAfterMaghrib: { title: 'الاستغفار', minimal: '10 استغفارات' },
+      sadaqahAfterMaghrib: { title: 'الصدقة', minimal: 'عمل خير صغير' },
+      nightAdhkar: { title: 'أذكار المساء', minimal: 'دعاء واحد' },
+      fastMonThu: { title: 'الصيام (سنّة)', minimal: 'الاثنين والخميس' },
     },
   },
 
