@@ -116,7 +116,14 @@ const FEATURES = [
               >
                 {{ t('landing.cardFallback', { location: locationLabel }) }}
               </button>
-              <span v-else>{{ locationLabel }}</span>
+              <!-- Already has a real fix — still offer a way to correct it (a
+                   stale reading, a traveler) without hiding behind /today. -->
+              <span v-else>
+                {{ locationLabel }} ·
+                <button type="button" class="link-btn" @click="requestLocation">
+                  {{ t('today.refreshLocation') }}
+                </button>
+              </span>
             </p>
           </template>
 
